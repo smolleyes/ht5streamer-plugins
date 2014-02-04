@@ -1,0 +1,21 @@
+{
+	"Songs": "Songs",
+	"Albums": "Albums",
+	"Playlists": "Playlists",
+	"Radios": "Radios",
+	"Popular": "Popular",
+	"Date": "Date",
+	"Title": "Title",
+	"Artist": "Artist",
+	"Grooveshark %s section": "Grooveshark %s section",
+	"Load more": "Load more",
+	"results found...": "results found...",
+	"Artist: ": "Artist: ",
+	"Downloading: ": "Downloading: ",
+	"Close": "Close",
+	"Convert to mp3": "Convert to mp3",
+	"Cancel": "Cancel",
+	"Open in grooveshark": "Open in grooveshark",
+	"Browsing popular songs, search disabled use the load more button...": "Browsing popular songs, search disabled use the load more button...",
+	"items available": "items available"
+}

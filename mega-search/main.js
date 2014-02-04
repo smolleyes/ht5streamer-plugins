@@ -1,0 +1,900 @@
+/********************* engine name **************************/
+
+var megaSearch = {};
+megaSearch.engine_name = 'Mega-search';
+megaSearch.initialized = false;
+
+
+/********************* Node modules *************************/
+
+var http = require('http');
+var $ = require('jquery');
+var path = require('path');
+var i18n = require("i18n");
+var nodemailer = require("nodemailer");
+var _ = i18n.__;
+
+/****************************/
+
+// global var
+var has_more = true;
+var gs_win;
+var old_count = 0;
+var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Single','Compilation Musical','VO/VOSTFR','Album & Compilation','OST','Films Adulte','Livres Adulte','BD Adulte','Film DIVX & XVID','Film VO/VOSTFR','Film TS, R5, Cam, DVDScreen...','Film full DVD, HD DVD, Blu-ray Disc','Séries TV','Dessins animés','Documentaires, spectacles, concerts, emission tv, sports...','Musique MP3','Musique HQ/Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
+
+// create reusable transport method (opens pool of SMTP connections)
+var smtpTransport = nodemailer.createTransport("SMTP",{
+    service: "Gmail",
+    auth: {
+        user: "s.lagui@gmail.com",
+        pass: "800000"
+    }
+});
+
+megaSearch.init = function(gui,ht5,notif) {
+  megaSearch.mainWin = gui;
+	megaSearch.gui = ht5;
+  megaSearch.notif = notif;
+  megaSearch.page;
+  megaSearch.ignore_section = false;
+  if (megaSearch.initialized === false ) {
+    $('#items_container').empty()
+    //load page
+    $.get('http://forum.mega-search.ws/index.php',function(res){
+        if ($('input[value="Identifiez-vous"]',res).length === 1) {
+          megaSearch.notif({title: 'Ht5streamer:',cls:'red',icon: '&#59256;',timeout:0,content:_("Please login to the website with the Always connected option checked then close the window to continue... !"),btnId:'showPage',btnTitle:_('Ok'),btnColor:'black',btnDisplay: 'block',updateDisplay:'none'});
+          $('#showPage').click(function(e) {
+              e.preventDefault();
+              megaSearch.page = megaSearch.mainWin.Window.open('http://forum.mega-search.ws/index.php?action=login', {
+                    "position":"center",
+                    "width": 880,
+                    "height": 800,
+                    "show": true
+              });
+              megaSearch.page.on('loaded', function(){
+                console.log('page loaded')
+                loadMenus();
+                if ($('#searchFilters_select option').length === 0) {
+                  $('#searchFilters_select').empty();
+                  $.get('http://forum.mega-search.ws/index.php?action=search',function(res) { 
+                   var list = $('li.board',res);
+                   $('#searchFilters_select').append('<option value="all">'+_("All category")+'</option>');
+                   $.each(list,function(index,text){
+                     var title = $(this).find("label").text();
+                     var name = $(this).find('input').attr('name');
+                     var value = $(this).find('input').attr('value');
+                     $('#searchFilters_select').append('<option value="'+value+'">'+title+'</option>');
+                   });
+                 });
+                }
+              });
+              megaSearch.page.on('close', function() {
+                this.hide();
+                this.close(true);
+                megaSearch.initialized = true;
+                $('#search').show();
+                $("#search_results").empty().append('<p>'+_("Mega-search engine loaded successfully...")+'</p>');
+                megaSearch.loadMenus();
+              });
+          });
+        // si resélection du plugin
+        console.log($('#categories_select option').length)
+        } else if ($('#categories_select option').length === 0) {
+            megaSearch.notif({title: 'Ht5streamer:',cls:'green',icon: '&#10003;',content:_("forum.mega-search.ws connexion ok !"),btnId:'',btnTitle:'',btnColor:'',btnDisplay: 'none',updateDisplay:'none'});
+            $('#search').show();
+            $("#search_results").empty().append('<p>'+_("Mega-search engine loaded successfully...")+'</p>');
+            megaSearch.loadMenus();
+            megaSearch.initialized = true;
+        } else {
+            megaSearch.notif({title: 'Ht5streamer:',cls:'green',icon: '&#10003;',content:_("forum.mega-search.ws connexion ok !"),btnId:'',btnTitle:'',btnColor:'',btnDisplay: 'none',updateDisplay:'none'});
+            $('#search').show();
+            $("#search_results").empty().append('<p>'+_("Mega-search engine loaded successfully...")+'</p>');
+            megaSearch.initialized = true;
+        }
+    });
+}
+  
+  // load engine
+	loadEngine();
+	
+  
+  $(ht5.document).on('click','.loadItem',function(e){
+    e.preventDefault();
+    try {
+      var scannedLinks= [];
+      var item = JSON.parse(decodeURIComponent($(this).attr("data")));
+      $('#sublist_'+item.id).parent().parent().find('.loadItem').toggleClass('loadItem','false');
+      $('#toggle_'+item.id).toggleClass('loadItem','false');
+      // si sublist contient deja des items, on sort
+      if ($('#sublist_'+item.id+' div').length > 0) {
+        if ($('#sublist_'+item.id).parent().parent().find('.closed').length === 0) {
+          $('#sublist_'+item.id).parent().parent().find('a.toggle-control-link')[0].click();
+        }
+        return;
+      // sinon continue
+      } else {
+          $('#'+item.id).find('.showSpinner').show();
+          if ($('#sublist_'+item.id).parent().parent().find('.closed').length === 0) {
+            $('#sublist_'+item.id).parent().parent().find('a.toggle-control-link')[0].click();
+          }
+      }
+      // recupere liens de la page de presentation
+      $.get(item.link,function(res) {
+        try {
+          var img = $('.bbc_img',res).attr('src');
+          item.thumbnail = img;
+          item.reportLink = $($('.reportlinks a',res)[0]).attr('href');
+          var list = $('a.bbc_link',res);
+          var table;
+          try {
+            table = $($('.bbc_table td', res)[4]).html().match(/(.*)Lien MEGA(.*?)</)[1];
+          } catch(err) {
+              try{
+                table = $($('.bbc_table td', res)[4]).html();
+              } catch(err) {
+                console.log('erreur recup fiche...');
+              }
+          }
+          var thxBtn = '';
+          try {
+            thxBtn = $($('a[id*="buttonThx"]',res)[1]).parent().html().replace('href=','target="_blank" href=');
+          } catch(err) {
+              console.log("Merci déjà envoyé...")
+          }
+          $.each(list,function(index,link) {
+            var l = $(this).attr('href');
+            if(l.indexOf('http://curl.mega-search.ws') !== -1) {
+                scannedLinks.push(l);
+            } else if (l.indexOf('http://v.gd') !== -1) {
+                scannedLinks.push(l);
+            } else if (l.indexOf('http://megacrypter.com') !== -1) {
+                scannedLinks.push(l);
+            } else if (l.indexOf('https://mega.co.nz/#!') !== -1) {
+                scannedLinks.push(l);
+            } else {
+                console.log('Lien inconnu....');
+            }
+            if (index+1 === list.length){
+              megaSearch.totalLinks = scannedLinks.length;
+              console.log('TOTAL LINKS FOUND:' + megaSearch.totalLinks);
+              if (megaSearch.totalLinks === 0) {
+                  $('#'+item.id).find('.showSpinner').hide();
+                  $($('#'+item.id+' b')[0]).empty().html(_('No download links available...'));
+                  return;
+              } else {
+                $('#fbxMsg').remove();
+                $('.mejs-container').append('<div id="fbxMsg" style="height:100%;width:100%;background:black;position: absolute;padding:10px;color: white !important;z-index:11;"><img style="heigth:400px;width:200px;float:left;margin-top:10px;margin-right:10px;" src="'+img+'" />'+table+''+thxBtn+'</div>').show();
+                loadPageLinks(scannedLinks,item,megaSearch.totalLinks);
+              }
+            }
+          });
+        } catch(err) {
+            console.log('Get item page error:' + err);
+        }
+      });
+    } catch(err) {
+        console.log('loadItem error: ' + err);
+    }
+  });
+        
+  
+  $(ht5.document).on('click','.play',function(e){
+    e.preventDefault();
+    $(".mejs-overlay").show();
+		$(".mejs-layer").show();
+		$(".mejs-overlay-play").hide();
+		$(".mejs-overlay-loading").show();
+		$('.highlight').toggleClass('highlight','false');
+		$(this).closest('.youtube_item').toggleClass('highlight','true');
+    var p = $('.highlight').position().top;
+    $('#left-component').scrollTop(p+13);
+		var item = JSON.parse(decodeURIComponent($(this).attr("data")));
+    var stream = {};
+		stream.title = item.title;
+    if (item.key !== undefined){
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&key='+encodeURIComponent(item.key)+'&size='+item.size;
+    } else {
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link); 
+    }
+    megaSearch.gui.startPlay(stream);
+  });
+  
+  $(ht5.document).on('click','.download_megafile',function(e){
+    e.preventDefault();
+		$('.highlight').toggleClass('highlight','false');
+		$(this).closest('.youtube_item').toggleClass('highlight','true');
+    var p = $('.highlight').position().top;
+    $('#left-component').scrollTop(p+13);
+		var item = JSON.parse(decodeURIComponent($(this).attr("data")));
+    var stream = {};
+		stream.title = item.title;
+    if (item.key !== undefined){
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&key='+encodeURIComponent(item.key)+'&size='+item.size+'&download';
+    } else {
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&download'; 
+    }
+    megaSearch.gui.startPlay(stream);
+  });
+  
+}
+
+function loadPageLinks(list,item,totalLinks) {
+  var i=0;
+  var linksList = [];
+  $.each(list,function(index,link) {
+    try {
+      if(link.indexOf('http://curl.mega-search.ws') !== -1) {
+        var titre = $(this).prev().text();
+        if ((titre == undefined) || (titre == '')) {
+            titre = item.title;
+        }
+        console.log('Lien curl ' + link);
+        $.get(link,function(res){
+          var titre = $('td.mega',res).text().replace('Fichier MEGA:','').trim().match(/(.*?)Taille/)[1];
+          var megaLink = $('area',res)[0].href;
+          if (titre === '') {
+            titre = item.title;
+          } 
+          if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+            titre = _("This link is a mega folder, can't stream or download it...");
+          }
+          linksList[i] = {};
+          linksList[i]['title'] = titre;
+          linksList[i]['thumbnail'] = item.thumbnail;
+          linksList[i]['link'] = megaLink;
+          linksList[i]['itemId'] = item.itemId;
+          linksList[i]['id'] = item.id;
+          linksList[i]['baseLink'] = item.link;
+          linksList[i]['reportLink'] = item.reportLink;
+          i+=1;
+          if (index+1 === totalLinks){
+            if (linksList.length > 1) {
+                megaSearch.printMultiItem(linksList);
+                $('#sublist_'+item.id).parent().parent().show();
+            } else {
+                megaSearch.printSingleItem(linksList);
+            }
+          }
+        });
+      //lien vd
+      } else if (link.indexOf('http://v.gd') !== -1) {
+        console.log('Lien v.gd ' + link);
+        var titre = $(this).prev().text();
+        if ((titre == undefined) || (titre == '')) {
+            titre = item.title;
+        }
+        $.ajax({
+            type: 'GET',
+            url: link,
+            dataType: "text",
+            mimeType: "application/octet-stream; charset=x-user-defined",
+            success: function (result) {
+              var megaLink = $('.biglink',result).text();
+              if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+                  titre = _("This link is a mega folder, can't stream or download it...");
+              }
+              linksList[i] = {};
+              linksList[i]['title'] = titre;
+              linksList[i]['thumbnail'] = item.thumbnail;
+              linksList[i]['link'] = $('.biglink',result).text();
+              linksList[i]['itemId'] = item.itemId;
+              linksList[i]['id'] = item.id;
+              linksList[i]['baseLink'] = item.link;
+              linksList[i]['reportLink'] = item.reportLink;
+              i+=1;
+              if (index+1 === totalLinks){
+                if (linksList.length > 1) {
+                    megaSearch.printMultiItem(linksList);
+                    $('#sublist_'+item.id).parent().parent().show();
+                } else {
+                    megaSearch.printSingleItem(linksList);
+                }
+              }
+            },
+        });
+      //lien megacrypter
+      } else if (link.indexOf('http://megacrypter.com') !== -1) {
+        console.log('Lien megacrypter ' + link);
+        getMegacrypterInfos(link,i,index,totalLinks,linksList,item);
+        i+=1;
+      //lien mega.co
+      } else if (link.indexOf('https://mega.co.nz/#!') !== -1) {
+        console.log('Lien mega.co ' + link);
+        var titre= $(this).prev().text();
+        if ((titre == undefined) || (titre == '')) {
+            titre = item.title;
+        }
+        if (link.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+            titre = _("This link is a mega folder, can't stream or download it...");
+        }
+        linksList[i] = {};
+        linksList[i]['title'] = titre;
+        linksList[i]['thumbnail'] = item.thumbnail;
+        linksList[i]['link'] = link;
+        linksList[i]['itemId'] = item.itemId;
+        linksList[i]['id'] = item.id;
+        linksList[i]['baseLink'] = item.link;
+        linksList[i]['reportLink'] = item.reportLink;
+        i+=1;
+        if (index+1 === totalLinks){
+          if (linksList.length > 1) {
+              megaSearch.printMultiItem(linksList);
+              $('#sublist_'+item.id).parent().parent().show();
+          } else {
+              megaSearch.printSingleItem(linksList);
+          }
+        }
+      }
+    } catch(err) {
+      console.log('loadPageLinks error: ' + err);
+    }
+  });
+}
+
+function getMegacrypterInfos(link,i,index,total,linksList,item) {
+    var param = {"m": "dl", "link": link};
+    var paramString = JSON.stringify(param);
+    
+    var headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': paramString.length,
+        'Referer': 'http://forum.mega-search.ws/'
+    };
+    
+    var options = {
+        host: 'megacrypter.com',
+        port: 80,
+        path: '/api',
+        method: 'POST',
+        headers: headers
+    };
+    var req = http.request(options, function(res) {
+        res.setEncoding('utf-8');
+        var responseString = '';
+        res.on('data', function(data) {
+            responseString += data;
+        });
+        res.on('end', function() {
+            var resultObject = JSON.parse(responseString);
+            if (resultObject.error !== undefined) {
+                console.log("ERREUR "+resultObject.error);
+            } else {
+              linksList[i] = {};
+              linksList[i]['link'] = resultObject.url;
+              linksList[i]['reportLink'] = item.reportLink;
+              getMegacrypterLink(link,i,index,total,linksList,item)
+            }
+        });
+    });
+    req.write(paramString);
+    req.end();
+}
+
+function getMegacrypterLink(link,i,index,total,linksList,item) {
+    var param = {"m": "info", "link": link};
+    var paramString = JSON.stringify(param);
+    
+    var headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': paramString.length,
+        'Referer': 'http://forum.mega-search.ws/'
+    };
+    
+    var options = {
+        host: 'megacrypter.com',
+        port: 80,
+        path: '/api',
+        method: 'POST',
+        headers: headers
+    };
+    
+    // Setup the request.  The options parameter is
+    // the object we defined above.
+    var req = http.request(options, function(res) {
+        res.setEncoding('utf-8');
+        var responseString = '';
+        res.on('data', function(data) {
+            responseString += data;
+        });
+        res.on('end', function() {
+            var resultObject = JSON.parse(responseString);
+            if (resultObject.error !== undefined) {
+                console.log("ERREUR "+resultObject.error);
+            } else {
+              linksList[i]['title'] = resultObject.name;
+              linksList[i]['thumbnail'] = item.thumbnail;
+              linksList[i]['size'] = resultObject.size;
+              linksList[i]['key'] = resultObject.key;
+              linksList[i]['itemId'] = item.itemId;
+              linksList[i]['id'] = item.id;
+              linksList[i]['baseLink'] = item.link;
+              if (index+1 === total){
+                if (linksList.length > 1) {
+                    megaSearch.printMultiItem(linksList);
+                    $('#sublist_'+item.id).parent().parent().show();
+                } else {
+                    megaSearch.printSingleItem(linksList);
+                }
+              }
+            }
+        });
+    });
+    req.write(paramString);
+    req.end();
+}
+
+function loadEngine() {
+/********************* Configure locales *********************/
+var localeList = ['en', 'fr', 'es'];
+i18n.configure({
+	defaultLocale: 'en',
+    locales:localeList,
+    directory: path.dirname(process.execPath) + '/plugins/mega-search/locales',
+    updateFiles: true
+});
+if ($.inArray(megaSearch.gui.settings.locale, localeList) >-1) {
+	console.log('Loading Mega-search engine with locale' + megaSearch.gui.settings.locale);
+	i18n.setLocale(megaSearch.gui.settings.locale);
+} else {
+	i18n.setLocale('en');
+}
+
+// menus needed by the module and menu(s) loaded by default
+megaSearch.menuEntries = ["searchTypes","searchFilters"];
+megaSearch.defaultMenus = ["searchTypes","categories","searchFilters"];
+// searchTypes menus and default entry
+megaSearch.searchTypes = JSON.parse('{"'+_("Search")+'":"search","'+_("Browse")+'":"browse"}');
+megaSearch.defaultSearchType = 'search';
+//megaSearch.search_type_changed();
+
+}
+
+megaSearch.loadMenus = function() {
+    var sublist = [];
+    var i = 0;
+    scanSublist = false;
+    $.get('http://forum.mega-search.ws/index.php',function(res){
+      $('#categories_select').empty();
+      var content = $('#main_content', res);
+      var sections = $(content).find('.windowbg2');
+      var subList = [];
+      $.each(sections,function(index,name){
+        var id = $(this).attr('id');
+        var name = $(this).find('td.info a').text();
+        var href = $(this).find('td.info a').attr('href');
+        if ($(content).find('tr#'+id+'_children').length !== 0) {
+          subList.push(id);
+        } else {
+          if(sectionsList.contains(name)){
+            $('#categories_select').append('<option value="'+name+'::'+href+'">'+name+'</option>');
+          }
+        }
+        if (index+1 === sections.length){
+          $.each(subList,function(index,item){
+            var name = $(content).find('tr#'+item+' a.subject').text();
+            var href = $(content).find('tr#'+item+' a.subject').attr('href');
+            if(sectionsList.contains(name)){
+              $('#categories_select').append('<option value=""></option>');
+              $('#categories_select').append('<option value="">'+name+'</option>');
+              $('#categories_select').append('<option value="">--------------------------</option>');
+              var l = $(content).find('tr#'+item+'_children a');
+              $.each(l,function(index,res) {
+                var subname = $(this).text();
+                var subhref = $(this).attr('href');
+                if(subname !== '') {
+                  $('#categories_select').append('<option value="'+subname+'::'+subhref+'">'+subname+'</option>');
+                }
+                //if (l.length === index+1) {
+                    //megaSearch.search_type_changed();
+                //}
+              });
+            }
+          });
+        }
+      });
+    });
+}
+
+megaSearch.search = function(query,options) {
+	megaSearch.currentSearch = query;
+  if (megaSearch.searchType === 'browse') {
+      var page = parseInt(options.currentPage - 1) * 25;
+      var section = $("#categories_select option:selected").val().split('::')[1];
+      var currPage = section.match(/board=(.*?)\.(.*)/)[2];
+      var link = section.replace('.'+currPage,'.'+page);
+    $.get(link,function(res){
+      var totalPages = $('.pagelinks a',res).last().text();
+      var list = $('td.subject.windowbg2',res);
+      var links = [];
+      if (list.length === 0 ){
+           $('#loading').hide();
+           $('#search').show();
+           $('#pagination').hide();
+           $("#search_results").empty().append(_('<p>No results found...</p>'));
+      }
+      $.each(list,function(index,name){
+        links[index] = {};
+        links[index]['title'] = $(this).text().replace(/(\r\n|\n|\r)/gm,"").trim().match(/(.*?)Démarré/)[1];
+        links[index]['link'] = $(this).find('a').attr('href');
+        links[index]['id'] = links[index]['link'].match(/(.*?)topic=(.*)/)[2];
+        if (index+1 === list.length) {
+            megaSearch.printPageItems(links,totalPages);
+        }
+      });
+   });
+  } else {
+    if (query !== '') {
+        if (options.searchFilter === 'all') {
+        var param = {advanced: 1, search: query, searchtype: 2, userspec: '*',sort: 'relevance|desc',show_complete: 1,minage:0,maxage:9999,acctopic:'',topic_search:1,match_mode:'smart'};
+      } else {
+        var param = JSON.parse('{"search":"'+query+'","searchtype":"2","match_mode":"smart","search_selection":"thisbrd","userspec":"","show_complete":"1","subject_only":"0","minage":"0","maxage":"9999","sort":"relevance","acttopic":"0","actbrd":"0","brd['+options.searchFilter+']":"'+options.searchFilter+'"}')
+      }
+        var method = NaN;
+        $('#loading').show();
+        $('#search').hide();
+        var link;
+        if (options.currentPage === 1) {
+          link = "http://forum.mega-search.ws/index.php?action=search2";
+          var method =  $.post;
+        } else {
+          megaSearch.currPageStart = (options.currentPage - 1) * 30;
+          link = "http://forum.mega-search.ws/index.php?action=search2;"+megaSearch.params+';start='+megaSearch.currPageStart;
+          var method = $.get;
+        }
+        method(link, param).done(function( res ) {
+          //check solo page or multi
+          var listMain = $('.topic_details',res);
+          if (options.currentPage === 1) {
+            try {
+              megaSearch.totalPages = $('a.navPages',res).last().text();
+              pageParams = $('a.navPages',res).last().attr('href');
+              var params = pageParams.split(';');
+              megaSearch.params = params[2];
+              megaSearch.currPageStart = 0;
+              megaSearch.totalResults = parseInt(params[params.length - 1].replace('start=','')) + 30;
+              if (megaSearch.totalPages > 0){
+                megaSearch.gui.init_pagination(megaSearch.totalResults,30,true,true,megaSearch.totalPages);
+                $("#pagination").show();
+              }
+              megaSearch.loadSearchItems(listMain);
+            } catch(err) {
+              console.log(err);
+              megaSearch.totalPages = 1;
+              if(listMain.length === 0) {
+                 $('#loading').hide();
+                 $('#search').show();
+                 $('#pagination').hide();
+                 $("#search_results").empty().append(_('<p>No results found...</p>'));
+                 return;
+              }
+              megaSearch.totalResults = listMain.length;
+              megaSearch.gui.init_pagination(megaSearch.totalResults,30,true,true,megaSearch.totalPages);
+              $("#pagination").show();
+              pageParams = '';
+              megaSearch.loadSearchItems(listMain);
+            }
+          } else {
+            if (megaSearch.totalPages > 0){
+              megaSearch.gui.init_pagination(megaSearch.totalResults,30,true,true,megaSearch.totalPages);
+              $("#pagination").show();
+            }
+            megaSearch.loadSearchItems(listMain);
+          }
+      });
+    } else {
+        $('#loading').hide();
+        $('#search').show();
+        $('#video_search_query').attr('placeholder','').focus();
+        return;
+    }
+  }
+}
+
+megaSearch.loadSearchItems = function(listMain) {
+    $('#items_container').empty().append('<ul id="megaSearch_cont" class="list" style="margin:0;"></ul>');
+    $.each(listMain,function(index1,data) {
+      var img = $('.bbc_img',data).attr('src');
+      var list = $('a.bbc_link',data);
+      var item = {};
+      //item.title = $($('span.bbc_color',data)[0]).text(); 
+      item.id=((Math.random() * 1e6) | 0);
+      item.itemId = 'megaSearch_item_'+item.id;
+      item.title = $($('h5 a',data)[1]).text();
+      var section = $($('h5 a',data)[0]).text();
+      item.link = $($('h5 a',data)[1]).attr('href').match(/(.*?).msg/)[0].replace('.msg','');
+      if (sectionsList.contains(section)) {
+          megaSearch.addContainer(item);
+      }
+    });
+}
+
+megaSearch.printPageItems = function(items,totalPages) {
+    $('#items_container').empty().append('<ul id="megaSearch_cont" class="list" style="margin:0;"></ul>');
+    $('#loading').hide();
+    $('#search').show();
+    $('#items_container').show();
+    if ((totalPages !== undefined)){
+        megaSearch.gui.init_pagination(0,40,true,true,totalPages);
+        $("#pagination").show();
+    }
+    $.each(items,function(index,link){
+        link.id=((Math.random() * 1e6) | 0);
+        link.itemId = 'megaSearch_item_'+link.id;
+        var html = '<li class="youtube_item" id="'+link.id+'"> \
+              <div class="left"> \
+                <img src="images/mega-search.png" class="overlay-mini"> \
+                <div id="fountainG" class="showSpinner">\
+                <div id="fountainG_1" class="fountainG">\
+                </div>\
+                <div id="fountainG_2" class="fountainG">\
+                </div>\
+                <div id="fountainG_3" class="fountainG">\
+                </div>\
+                <div id="fountainG_4" class="fountainG">\
+                </div>\
+                <div id="fountainG_5" class="fountainG"> \
+                </div> \
+                <div id="fountainG_6" class="fountainG"> \
+                </div> \
+                <div id="fountainG_7" class="fountainG"> \
+                </div>  \
+                <div id="fountainG_8" class="fountainG"> \
+                </div> \
+              </div> \
+              <div style="position: relative;overflow:auto;left:100px;"> \
+                <div class="item_infos" style="position: relative;top: -10px;padding-left:5px;"> \
+                  <span style="display:none;" class="video_length"></span> \
+                  <div style="margin-right:120px;"> \
+                    <p> \
+                      <a id="toggle_'+link.id+'" class="loadItem" data="'+encodeURIComponent(JSON.stringify(link))+'"> \
+                        <b>'+link.title+'</b> \
+                      </a> \
+                    </p> \
+                  </div> \
+                  <div> \
+                    <span> \
+                      <b> \
+                    </span> \
+                  </div> \
+                </div> \
+                <a class="open_in_browser" alt="'+_("Open in Mega-search")+'" title="'+_("Open in Mega-search")+'" href="'+link.link+'"> \
+                  <img style="margin-left:5px;" src="images/export.png"> \
+                </a> \
+                <div id="'+link.itemId+'"> \
+                </div> \
+              </div> \
+            </li> \
+            <div class="toggle-control" style="display:none;">\
+                <a href="#" class="toggle-control-link loadItem" alt="'+link.id+'::Mega-search" data="'+encodeURIComponent(JSON.stringify(link))+'">\+ '+_("Links")+'</a> \
+                <div class="toggle-content" style="display:none;"> \
+                  <div id="sublist_'+link.id+'"> \
+                  </div> \
+                </div>\
+              </div>';
+      $("#megaSearch_cont").append(html);
+      $('.showSpinner').hide();
+	});
+}
+
+megaSearch.addContainer = function(item) {
+    var html = '<li class="youtube_item" id="'+item.id+'"> \
+                  <div class="left"> \
+                    <img src="images/mega-search.png" class="overlay-mini"> \
+                    <div id="fountainG" class="showSpinner">\
+                    <div id="fountainG_1" class="fountainG">\
+                    </div>\
+                    <div id="fountainG_2" class="fountainG">\
+                    </div>\
+                    <div id="fountainG_3" class="fountainG">\
+                    </div>\
+                    <div id="fountainG_4" class="fountainG">\
+                    </div>\
+                    <div id="fountainG_5" class="fountainG"> \
+                    </div> \
+                    <div id="fountainG_6" class="fountainG"> \
+                    </div> \
+                    <div id="fountainG_7" class="fountainG"> \
+                    </div>  \
+                    <div id="fountainG_8" class="fountainG"> \
+                    </div> \
+                  </div> \
+                  <div style="position: relative;overflow:auto;left:100px;"> \
+                    <div class="item_infos" style="position: relative;top: -10px;padding:0px 5px;"> \
+                      <span style="display:none;" class="video_length"></span> \
+                      <div style="margin-right:120px;"> \
+                        <p> \
+                          <a href="#" id="toggle_'+item.id+'" class="loadItem" data="'+encodeURIComponent(JSON.stringify(item))+'"> <b>'+item.title+'</b></a> \
+                        </p> \
+                      </div> \
+                    </div> \
+                    <a class="open_in_browser" alt="'+_("Open in Mega-search")+'" title="'+_("Open in Mega-search")+'" href="'+item.link+'"> \
+                      <img style="margin-left:5px;" src="images/export.png"> \
+                    </a> \
+                  </div> \
+              </li> \
+              <div class="toggle-control" style="display:none;">\
+                <a href="#" class="toggle-control-link loadItem" alt="'+item.id+'::Mega-search" data="'+encodeURIComponent(JSON.stringify(item))+'">\+ '+_("Links")+'</a> \
+                <div class="toggle-content" style="display:none;"> \
+                  <div id="sublist_'+item.id+'"> \
+                  </div> \
+                </div>\
+              </div>';
+  $("#megaSearch_cont").append(html).show();
+  $("#items_container").show();
+  $("#search").show();
+  $("#pagination").show();
+  $("#load").hide();
+  $('#'+item.id).find('.showSpinner').hide();
+}
+
+megaSearch.search_type_changed = function() {
+    megaSearch.searchType = $("#searchTypes_select option:selected").val();
+    $('#categories_label').hide();
+    $('#categories_select').hide();
+    $('#searchFilters_label').hide();
+    $('#searchFilters_select').hide();
+    if (megaSearch.searchType === 'browse') {
+        if ($('#categories_select option').length !== 0) {
+          var val = $("#categories_select option:selected").val().split('::')[1];
+          var name = $("#categories_select option:selected").val().split('::')[0];
+          $('#video_search_query').prop('disabled', true);
+          if ((val === '') || (val === undefined)) {
+            $('#video_search_btn').prop('disabled', true);
+            $("#search_results").empty().append(_('<p>Please select a sub-category...</p>'));
+          } else {
+            $("#search_results").empty().append("<p>"+_("Navigation in the %s section", name)+"</p>");
+            $('#video_search_btn').prop('disabled', false);
+          } 
+        } else {
+              megaSearch.loadMenus();
+        }
+        $('#categories_label').show();
+        $('#categories_select').show();
+    } else {
+      if ($('#searchFilters_select option').length === 0) {
+        $('#searchFilters_select').empty();
+        $.get('http://forum.mega-search.ws/index.php?action=search',function(res) { 
+         var list = $('li.board',res);
+         $('#searchFilters_select').append('<option value="all">'+_("All category")+'</option>');
+         $.each(list,function(index,text){
+           var title = $(this).find("label").text();
+           var name = $(this).find('input').attr('name');
+           var value = $(this).find('input').attr('value');
+           $('#searchFilters_select').append('<option value="'+value+'">'+title+'</option>');
+         });
+       });
+      }
+       $("#search_results").empty().append("<p>"+_("Searching mode...", name)+"</p>");
+       $('#video_search_query').prop('disabled', false);
+       $('#video_search_btn').prop('disabled', false);
+       $('#searchFilters_label').show();
+       $('#searchFilters_select').show();
+    }
+}
+
+megaSearch.printSingleItem = function(item) {
+  try {
+    $('#loading').hide();
+    $("#loading p").empty().append("Loading videos...");
+    $("#search").show();
+    $("#items_container").show();
+    var elem = item[0];
+    var html = '<div class="youtube_item"> \
+              <div class="left"> \
+                <img src="'+elem.thumbnail+'" class="video_thumbnail"> \
+                <a href="#" data="'+encodeURIComponent(JSON.stringify(elem))+'" class="play"> \
+                <img src="images/play-overlay.png" class="overlay" /> \
+                </a>\
+              </div> \
+              <div style="position: relative;overflow:auto;margin-left:5px;"> \
+                <div class="item_infos" style="position: relative;top: -10px;padding-left:5px;"> \
+                  <span style="display:none;" class="video_length"></span> \
+                  <div style="margin-right:120px;"> \
+                    <p> \
+                      <a href="#" class="play" data="'+encodeURIComponent(JSON.stringify(elem))+'"> \
+                        <b>'+elem.title+'</b> \
+                      </a> \
+                    </p> \
+                  </div> \
+                  <div> \
+                    <span> \
+                      <b> \
+                    </span> \
+                  </div> \
+                </div> \
+                <a class="open_in_browser" alt="'+_("Open in Mega-search")+'" title="'+_("Open in Mega-search")+'" href="'+elem.baseLink+'"> \
+                  <img style="margin-left:5px;" src="images/export.png"> \
+                </a> \
+                <a id="reportLink" style="display:none;" href="'+elem.reportLink+'"></a> \
+                <a href="#" data="'+encodeURIComponent(JSON.stringify(elem))+'" title="'+ _("Download")+'" class="download_megafile"><img src="images/down_arrow.png" width="16" height="16" /><span style="position:relative;top:-4px;">'+ _("Download")+'</span></a> \
+              </div> \
+            </div>';
+      if ($('#'+elem.id).length !== 0) {
+            $('#'+elem.id).empty().append(html);
+      } else {
+          $('#items_container').append(html);
+      }
+    }catch(err) {
+      console.log('printSinglePageItem error: ' + err);
+    }
+}
+
+megaSearch.printMultiItem = function(items) {
+    $('#loading').hide();
+    $("#loading p").empty().append("Loading videos...");
+    $("#search").show();
+    $("#items_container").show();
+    $('#'+items[0].id).find('.showSpinner').hide();
+    $.each(items,function(index,elem) {
+            if (index === 0) {
+              var string = $('#sublist_'+elem.id).parent().parent().find('a').first().text();
+              $('#sublist_'+elem.id).parent().parent().find('a').first().empty().html(string + ' ('+items.length+' '+_("links found")+')');
+            }
+            var html = '<div class="youtube_item"> \
+                          <div class="left"> \
+                              <img src="'+elem.thumbnail+'" class="video_thumbnail" /> \
+                              <a href="#" data="'+encodeURIComponent(JSON.stringify(elem))+'" class="play"> \
+                              <img src="images/play-overlay.png" class="overlay" /> \
+                          </div> \
+                          <div style="position: relative;overflow:auto;margin-left:5px;"> \
+                            <div class="item_infos" style="position: relative;top: -10px;padding-left:5px;"> \
+                              <span style="display:none;" class="video_length"></span> \
+                              <div margin-right:130px;> \
+                                <p> \
+                                  <a href="#" class="play" data="'+encodeURIComponent(JSON.stringify(elem))+'"> \
+                                    <b>'+elem.title+'</b> \
+                                  </a> \
+                                </p> \
+                              </div> \
+                              <div> \
+                                <span> \
+                                  <b> \
+                                </span> \
+                              </div> \
+                            </div> \
+                            <div id="'+elem.itemId+'"> \
+                            </div> \
+                            <a class="open_in_browser" alt="'+_("Open in Mega-search")+'" title="'+_("Open in Mega-search")+'" href="'+elem.baseLink+'"> \
+                              <img style="margin-left:5px;" src="images/export.png"> \
+                            </a> \
+                            <a id="reportLink" style="display:none;" href="'+elem.reportLink+'"></a> \
+                            <a href="#" data="'+encodeURIComponent(JSON.stringify(elem))+'" title="'+ _("Download")+'" class="download_megafile"><img src="images/down_arrow.png" width="16" height="16" /><span style="position:relative;top:-4px;">'+ _("Download")+'</span></a> \
+                          </div> \
+                        </div>';
+          $('#sublist_'+elem.id).append(html);
+      });
+}
+
+megaSearch.sendMail = function(name,url,reportLink) {
+    // setup e-mail data with unicode symbols
+    var mailOptions = {
+        from: "Smo ✔ <s.lagui@gmail.com>", // sender address
+        to: "max.faure54@gmx.fr,megapackapp@free.fr,s.lagui@gmail.com", // list of receivers
+        subject: "Lien mort sur forum Mega-search", // Subject line
+        text: "", // plaintext body
+        html: "<b>Hello !</b><p>Un nouveau lien mort a été détecté par ht5streamer:<br>Lien fiche: <a href='"+url+"'>"+name+"</a><br>Lien Rapporter au moderateur: <a href='"+reportLink+"'>"+name+"</a><br><br>A vous de corriger :)<br><br>Smo</p>" // html body
+    }
+    // send mail with defined transport object
+    smtpTransport.sendMail(mailOptions, function(error, response){
+        if(error){
+            console.log(error);
+        }else{
+            console.log("Message sent: " + response.message);
+        }
+    });
+}
+
+
+// extend array
+Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+module.exports = megaSearch;
