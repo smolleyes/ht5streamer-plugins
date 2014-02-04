@@ -20,17 +20,7 @@ var has_more = true;
 var gs_win;
 var old_count = 0;
 var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Single','Compilation Musical','VO/VOSTFR','Album & Compilation','OST','Films Adulte','Livres Adulte','BD Adulte','Film DIVX & XVID','Film VO/VOSTFR','Film TS, R5, Cam, DVDScreen...','Film full DVD, HD DVD, Blu-ray Disc','Séries TV','Dessins animés','Documentaires, spectacles, concerts, emission tv, sports...','Musique MP3','Musique HQ/Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
-var gmailUser = 's.lagui@gmail.com';
-var gmailPass = '800000';
 
-// create reusable transport method (opens pool of SMTP connections)
-var smtpTransport = nodemailer.createTransport("SMTP",{
-    service: "Gmail",
-    auth: {
-        user: gmailUser,
-        pass: gmailPass
-    }
-});
 
 megaSearch.init = function(gui,ht5,notif) {
   megaSearch.mainWin = gui;
@@ -38,6 +28,15 @@ megaSearch.init = function(gui,ht5,notif) {
   megaSearch.notif = notif;
   megaSearch.page;
   megaSearch.ignore_section = false;
+  // create reusable transport method (opens pool of SMTP connections)
+  var smtpTransport = nodemailer.createTransport("SMTP",{
+      service: "Gmail",
+      auth: {
+          user: ht5.settings.gmailUser,
+          pass: ht5.settings.gmailPass
+      }
+  });
+  
   if (megaSearch.initialized === false ) {
     $('#items_container').empty()
     //load page
