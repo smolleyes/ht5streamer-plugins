@@ -867,6 +867,9 @@ megaSearch.printMultiItem = function(items) {
 
 megaSearch.sendMail = function(name,url,reportLink) {
     // setup e-mail data with unicode symbols
+    if (name.indexOf('dossier Mega') !== -1) {
+        return;
+    }
     var mailOptions = {
         from: "ht5bot", // sender address
         to: "max.faure54@gmx.fr,megapackapp@free.fr,s.lagui@gmail.com", // list of receivers
