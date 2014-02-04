@@ -4,7 +4,6 @@ var megaSearch = {};
 megaSearch.engine_name = 'Mega-search';
 megaSearch.initialized = false;
 
-
 /********************* Node modules *************************/
 
 var http = require('http');
@@ -21,13 +20,15 @@ var has_more = true;
 var gs_win;
 var old_count = 0;
 var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Single','Compilation Musical','VO/VOSTFR','Album & Compilation','OST','Films Adulte','Livres Adulte','BD Adulte','Film DIVX & XVID','Film VO/VOSTFR','Film TS, R5, Cam, DVDScreen...','Film full DVD, HD DVD, Blu-ray Disc','Séries TV','Dessins animés','Documentaires, spectacles, concerts, emission tv, sports...','Musique MP3','Musique HQ/Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
+var gmailUser = '';
+var gmailPass = '';
 
 // create reusable transport method (opens pool of SMTP connections)
 var smtpTransport = nodemailer.createTransport("SMTP",{
     service: "Gmail",
     auth: {
-        user: "s.lagui@gmail.com",
-        pass: "800000"
+        user: gmailUser,
+        pass: gmailPass
     }
 });
 
@@ -868,7 +869,7 @@ megaSearch.printMultiItem = function(items) {
 megaSearch.sendMail = function(name,url,reportLink) {
     // setup e-mail data with unicode symbols
     var mailOptions = {
-        from: "Smo ✔ <s.lagui@gmail.com>", // sender address
+        from: "ht5bot", // sender address
         to: "max.faure54@gmx.fr,megapackapp@free.fr,s.lagui@gmail.com", // list of receivers
         subject: "Lien mort sur forum Mega-search", // Subject line
         text: "", // plaintext body
