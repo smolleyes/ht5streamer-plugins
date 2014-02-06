@@ -429,7 +429,7 @@ var localeList = ['en', 'fr', 'es'];
 i18n.configure({
 	defaultLocale: 'en',
     locales:localeList,
-    directory: path.dirname(process.execPath) + '/plugins/mega-search/locales',
+    directory: megaSearch.gui.pluginsDir + 'mega-search/locales',
     updateFiles: true
 });
 if ($.inArray(megaSearch.gui.settings.locale, localeList) >-1) {

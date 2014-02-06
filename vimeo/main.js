@@ -83,7 +83,7 @@ var localeList = ['en', 'fr'];
 i18n.configure({
 	defaultLocale: 'en',
     locales:localeList,
-    directory: path.dirname(process.execPath) + '/plugins/vimeo/locales',
+    directory: vimeo.gui.pluginsDir + 'vimeo/locales',
     updateFiles: false
 });
 

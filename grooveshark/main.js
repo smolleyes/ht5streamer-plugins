@@ -97,7 +97,7 @@ var localeList = ['en', 'fr'];
 i18n.configure({
 	defaultLocale: 'en',
     locales:localeList,
-    directory: path.dirname(process.execPath) + '/plugins/grooveshark/locales',
+    directory: gshark.gui.pluginsDir + 'grooveshark/locales',
     updateFiles: true
 });
 

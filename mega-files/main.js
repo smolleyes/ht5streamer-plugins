@@ -47,7 +47,7 @@ var localeList = ['en', 'fr'];
 i18n.configure({
 	defaultLocale: 'en',
     locales:localeList,
-    directory: path.dirname(process.execPath) + '/plugins/mega-files/locales',
+    directory: megaFiles.gui.pluginsDir + 'mega-files/locales',
     updateFiles: false
 });
 
