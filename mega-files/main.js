@@ -111,13 +111,6 @@ megaFiles.search = function (query, options, gui){
         var length = list.length - 1;
         $.each(list,function(index,res){
             var title = $($('.boxTitle',this)[0]).text();
-            if ((title.lastIndexOf('.mp4') === -1) && (title.lastIndexOf('.mkv') === -1) && (title.lastIndexOf('.avi') === -1) && (title.lastIndexOf('.flv') === -1)) {
-				if (index === length) {
-					return print_videos(totalResults,videos);
-				} else {
-					return true;
-				}
-			}
             var link;
             var size;
             var date;
@@ -175,8 +168,8 @@ function print_videos(total,videos) {
 	// init pagination if needed
 	if (browser_mode === true) {
 		megaFiles.gui.init_pagination(0,40,true,true);
-    } else {
-		megaFiles.gui.init_pagination(total,40,false,false);
+  } else {
+		megaFiles.gui.init_pagination(total-1,40,false,false,Math.ceil(total/40).toFixed());
 	}
     $("#pagination").show();
     
