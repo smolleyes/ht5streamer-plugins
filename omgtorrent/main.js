@@ -132,7 +132,7 @@ function analyseResults(videos,list) {
   $.each(list,function(index,item) {
       var infos = {};
       infos.cat = $(this).find('td')[0].innerHTML;
-      infos.link = $(this).find('a')[0].href.replace('file:///','http://www.omgtorrent.com/');
+      infos.link = 'http://www.omgtorrent.com/films'+$(this).find('a')[0].href.replace(/.*\/films/,'');
       infos.title = $(this).find('a')[0].innerHTML;
       infos.seeds = $(this).find('td')[3].innerHTML;
       infos.leechers = $(this).find('td')[4].innerHTML;
