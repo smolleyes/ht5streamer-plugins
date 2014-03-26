@@ -1,0 +1,20 @@
+{
+	"Videos": "Vidéos",
+	"Categories": "Catégories",
+	"Relevance": "Pertinence",
+	"Views": "Vues",
+	"Rating": "Notes",
+	"Date": "Date",
+	"Duration": "Durée",
+	"<p>omgtorrent %s section</p>": "<p>omgtorrent section %s</p>",
+	"Loading videos...": "Chargement des vidéos...",
+	"download": "Télécharger",
+	"Open in %s": "Ouvrir dans %",
+	"Loading categories, please wait...": "Chargement des catégories, merci de patienter...",
+	"Movies": "Films",
+	"Search": "Recherche",
+	"Seeds": "Sources",
+	"results found...": "results found...",
+	"Artist: ": "Artist: ",
+	"Open in grooveshark": "Open in grooveshark"
+}
