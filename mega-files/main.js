@@ -176,6 +176,10 @@ function print_videos(total,videos) {
   // load videos in the playlist
 	$('#items_container').empty().append('<ul id="megaFiles_cont" class="list" style="margin:0;"></ul>').show();
 	$.each(videos,function(index,video) {
+    var ext = video.title.split('.').pop().toLowerCase();
+    if(megaFiles.gui.videoArray.contains(ext) === false){
+      return;
+    }
 		var html = '<li class="youtube_item"> \
 						<div class="left"> \
 							<img src="'+video.thumbnail+'" class="video_thumbnail"> \
