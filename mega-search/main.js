@@ -465,7 +465,7 @@ megaSearch.loadMenus = function() {
         if ($(content).find('tr#'+id+'_children').length !== 0) {
           subList.push(id);
         } else {
-          if(sectionsList.contains(name)){
+          if(in_array(name,sectionsList) !== -1){
             $('#categories_select').append('<option value="'+name+'::'+href+'">'+name+'</option>');
           }
         }
@@ -473,7 +473,7 @@ megaSearch.loadMenus = function() {
           $.each(subList,function(index,item){
             var name = $(content).find('tr#'+item+' a.subject').text();
             var href = $(content).find('tr#'+item+' a.subject').attr('href');
-            if(sectionsList.contains(name)){
+            if(in_array(name,sectionsList) !== -1){
               $('#categories_select').append('<option value=""></option>');
               $('#categories_select').append('<option value="">'+name+'</option>');
               $('#categories_select').append('<option value="">--------------------------</option>');
@@ -602,7 +602,7 @@ megaSearch.loadSearchItems = function(listMain) {
       item.title = $($('h5 a',data)[1]).text();
       var section = $($('h5 a',data)[0]).text();
       item.link = $($('h5 a',data)[1]).attr('href').match(/(.*?).msg/)[0].replace('.msg','');
-      if (sectionsList.contains(section)) {
+      if (in_array(section,sectionsList) !== -1) {
           megaSearch.addContainer(item);
       }
     });
@@ -887,16 +887,13 @@ megaSearch.sendMail = function(name,url,reportLink) {
     });
 }
 
-
-// extend array
-Array.prototype.contains = function(obj) {
-    var i = this.length;
-    while (i--) {
-        if (this[i] === obj) {
-            return true;
-        }
+function in_array(needle, haystack){
+    var found = 0;
+    for (var i=0, len=haystack.length;i<len;i++) {
+        if (haystack[i] == needle) return i;
+            found++;
     }
-    return false;
+    return -1;
 }
 
 
