@@ -6,7 +6,7 @@
 	"Rating": "Notes",
 	"Date": "Date",
 	"Duration": "Durée",
-	"<p>omgtorrent %s section</p>": "<p>omgtorrent section %s</p>",
+	"<p>cpasbien %s section</p>": "<p>cpasbien section %s</p>",
 	"Loading videos...": "Chargement des vidéos...",
 	"download": "Télécharger",
 	"Open in %s": "Ouvrir dans %",
@@ -16,6 +16,7 @@
 	"Seeds": "Sources",
 	"results found...": "results found...",
 	"Artist: ": "Artist: ",
-	"Open in Omgtorrent": "Ouvrir dans Omgtorrent",
-  "No results found..." : "Aucun résultat trouvé..."
+	"Open in Cpasbien": "Ouvrir dans Cpasbien",
+	"No results found...": "Aucun résultat trouvé...",
+	"<p>cpb %s section</p>": "<p>cpb %s section</p>"
 }

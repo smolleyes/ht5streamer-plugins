@@ -162,8 +162,10 @@ megaSearch.init = function(gui,ht5,notif) {
                   $($('#'+item.id+' b')[0]).empty().html(_('No download links available...'));
                   return;
               } else {
-                $('#fbxMsg').remove();
-                $('.mejs-container').append('<div id="fbxMsg" style="height:100%;width:100%;background:black;position: absolute;padding:10px;color: white !important;z-index:11;"><img style="heigth:400px;width:200px;float:left;margin-top:10px;margin-right:10px;" src="'+img+'" />'+table+''+thxBtn+'</div>').show();
+                $('#fbxMsg').empty().remove();
+                $('.mejs-overlay-button').hide();
+                $('.mejs-container').append('<div id="fbxMsg"><a href="#" id="closePreview" alt="'+_("Close preview")+'" title="'+_("Close preview")+'">X</a><img style="heigth:400px;width:200px;float:left;margin-top:10px;margin-right:10px;" src="'+img+'" />'+table+''+thxBtn+'</div>');
+                $('#fbxMsg').hide().fadeIn(2000);
                 loadPageLinks(scannedLinks,item,megaSearch.totalLinks);
               }
             }

@@ -19,7 +19,8 @@
 	"Download": "Télécharger",
 	"<p>No results found...</p>": "<p>Aucun résultat trouvé...</p>",
 	"All category": "toutes les catégories",
-	"results found...": "results found...",
-	"Artist: ": "Artist: ",
-	"Open in grooveshark": "Open in grooveshark"
+	"results found...": "resultats trouvés...",
+	"Artist: ": "Artiste: ",
+	"Open in Mega-search": "Ouvrir dans Mega-search",
+  "Close preview" : "Fermer l'aperçu"
 }

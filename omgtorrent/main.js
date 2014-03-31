@@ -38,13 +38,15 @@ omgTorrent.init = function(gui,ht5) {
         $.get(link, function(res) {
             var table = $(".infos_fiche", res).html();
             obj.torrent = 'http://www.omgtorrent.com'+$('#lien_dl',res).attr("href");
-            $('#fbxMsg').remove();
+            $('#fbxMsg').empty().remove();
             $('#preloadTorrent').remove();
-            $('.mejs-container').append('<div id="fbxMsg" style="height:100%;width:98%;background:black;position: absolute;padding:10px;color: white !important;z-index:2000;">'+table+'</div>').show();
+            $('.mejs-overlay-button').hide();
+            $('.mejs-container').append('<div id="fbxMsg"><a href="" id="closePreview">X</a>'+table+'</div>');
             $('a [src="/img/icone_maj.png"]').parent().remove();
             $($('#fbxMsg img')[0]).attr('src','images/s.png');
             $($('#fbxMsg img')[1]).attr('src','images/c.png');
             $('#'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
+            $('#fbxMsg').hide().fadeIn(2000);
         })
         
         //$('.highlight').toggleClass('highlight','false');
@@ -110,7 +112,13 @@ omgTorrent.search = function (query, options,gui) {
     $.get(url,function(res){
       var videos = {};
       var list=$('.torrent',res).parent().parent();
-      console.log(list)
+      if(list.length === 0 ) {
+          $('#loading').hide();
+          $("#search_results p").empty().append(_("No results found..."));
+          $("#search").show();
+          $("#pagination").hide();
+          return;
+      }
       try {
         var number = parseInt($('.nav a', res).last().prev().text());
         if (isNaN(number)) {
