@@ -104,6 +104,7 @@ megaSearch.init = function(gui,ht5,notif) {
     try {
       var scannedLinks= [];
       var item = JSON.parse(decodeURIComponent($(this).attr("data")));
+      try {
       $('#sublist_'+item.id).parent().parent().find('.loadItem').toggleClass('loadItem','false');
       $('#toggle_'+item.id).toggleClass('loadItem','false');
       // si sublist contient deja des items, on sort
@@ -118,6 +119,9 @@ megaSearch.init = function(gui,ht5,notif) {
           if ($('#sublist_'+item.id).parent().parent().find('.closed').length === 0) {
             $('#sublist_'+item.id).parent().parent().find('a.toggle-control-link')[0].click();
           }
+      }
+      } catch(err) {
+        console.log(err);
       }
       // recupere liens de la page de presentation
       $.get(item.link,function(res) {
@@ -241,77 +245,8 @@ function loadPageLinks(list,item,totalLinks) {
             titre = item.title;
           } 
           if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
-            try {
-            var folderId = megaLink.match(/(.*)#F!(.*?)!/)[2];
-            var k0 = d64(megaLink.match(/(.*)#F!(.*?)!(.*)/)[3]);
-            var iv = Buffer(16);
-            iv.fill(0);
-            var folderList = [];
-            $.post('https://g.api.mega.co.nz/cs?id=1&n='+folderId+'','[{"a":"f","c":"1","r":"1"}]').done(function(res) {
-              var listing = {}; 
-              listing.folder = {};
-              listing.folder.files = [];
-              $.each(res,function(mainIndex,mainObj){
-                  if (typeof(mainObj) === "object") {
-                    $.each(mainObj,function(ind,obj){
-                        $.each(obj,function(fileIndex,file){ 
-                          if(typeof(obj) === "object") {
-                            if (file.t === 1) {
-                              // decrypt folder
-                              var k = d64(file.k.split(':')[1]);
-                              var a = d64(file.a);
-                              var aes = node_crypto.createDecipheriv('aes-128-ecb', k0, Buffer(0));
-                              aes.setAutoPadding(false);
-                              var kdec = aes.update(k);
-                              aes = node_crypto.createDecipheriv('aes-128-cbc', kdec, iv);
-                              aes.setAutoPadding(false);
-                              
-                              var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
-                              listing.folder.name = name;
-                              listing.folder.key = kdec.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-                            } else {
-                              var folderFile = {};
-                              var k = d64(file.k.split(':')[1]);
-                              var a = d64(file.a);
-                              
-                              var aes = node_crypto.createDecipheriv('aes-128-ecb', k0, Buffer(0));
-                              aes.setAutoPadding(false);
-                              var kfdec = aes.update(k).toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-                              var k2dec = from256to128(aes.update(k));
-                              
-                              aes = node_crypto.createDecipheriv('aes-128-cbc', k2dec, iv);
-                              aes.setAutoPadding(false);
-                              var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
-                              
-                              folderFile.name = name;
-                              folderFile.id = file.h;
-                              folderFile.folderId = folderId;
-                              folderFile.k = kfdec;
-                              folderFile.size = file.s;
-                              listing.folder.files.push(folderFile);
-                            }
-                            if(fileIndex+1 === obj.length) {
-                              console.log(listing,totalLinks);
-                              // add files to total listing
-                              if(listing.folder.files.length > 1 ) {
-                                totalLinks += listing.folder.files.length - 1;
-                              }
-                              $.each(listing.folder.files,function(findex,file) {
-                                  getMegaFolderLink(file,i,mainIndex,totalLinks,linksList,item);
-                                  i+=1;
-                              });
-                            }
-                          }
-                      });
-                  });
-                }
-              });
-            });
-          } catch(err) {
-              $('#'+item.id).find('.showSpinner').hide();
-              $('#sublist_'+item.id).parent().parent().find('.loadItem').toggleClass('loadItem','true');
-              $('#toggle_'+item.id).toggleClass('loadItem','true');
-          }
+            getFolderLinks(megaLink,item,linksList,totalLinks,i);
+            i+=1;
           } else {
             linksList[i] = {};
             linksList[i]['title'] = titre;
@@ -347,7 +282,8 @@ function loadPageLinks(list,item,totalLinks) {
             success: function (result) {
               var megaLink = $('.biglink',result).text();
               if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
-                  titre = _("This link is a mega folder, can't stream or download it...");
+                  getFolderLinks(megaLink,item,linksList,totalLinks,i);
+                  i+=1;
               }
               linksList[i] = {};
               linksList[i]['title'] = titre;
@@ -381,7 +317,8 @@ function loadPageLinks(list,item,totalLinks) {
             titre = item.title;
         }
         if (link.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
-            titre = _("This link is a mega folder, can't stream or download it...");
+            getFolderLinks(link,item,linksList,totalLinks,i);
+            i+=1;
         }
         linksList[i] = {};
         linksList[i]['title'] = titre;
@@ -407,8 +344,76 @@ function loadPageLinks(list,item,totalLinks) {
   });
 }
 
+function getFolderLinks(megaLink,item,linksList,totalLinks,i) {
+    var folderId = megaLink.match(/(.*)#F!(.*?)!/)[2];
+    var k0 = d64(megaLink.match(/(.*)#F!(.*?)!(.*)/)[3]);
+    var iv = Buffer(16);
+    iv.fill(0);
+    var folderList = [];
+    $.post('https://g.api.mega.co.nz/cs?id=1&n='+folderId+'','[{"a":"f","c":"1","r":"1"}]').done(function(res) {
+      var listing = {}; 
+      listing.folder = {};
+      listing.folder.files = [];
+      $.each(res,function(mainIndex,mainObj){
+          if (typeof(mainObj) === "object") {
+            $.each(mainObj,function(ind,obj){
+                $.each(obj,function(fileIndex,file){ 
+                  if(typeof(obj) === "object") {
+                    if (file.t === 1) {
+                      // decrypt folder
+                      var k = d64(file.k.split(':')[1]);
+                      var a = d64(file.a);
+                      var aes = node_crypto.createDecipheriv('aes-128-ecb', k0, Buffer(0));
+                      aes.setAutoPadding(false);
+                      var kdec = aes.update(k);
+                      aes = node_crypto.createDecipheriv('aes-128-cbc', kdec, iv);
+                      aes.setAutoPadding(false);
+                      
+                      var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
+                      listing.folder.name = name;
+                      listing.folder.key = kdec.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+                    } else {
+                      var folderFile = {};
+                      var k = d64(file.k.split(':')[1]);
+                      var a = d64(file.a);
+                      
+                      var aes = node_crypto.createDecipheriv('aes-128-ecb', k0, Buffer(0));
+                      aes.setAutoPadding(false);
+                      var kfdec = aes.update(k).toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+                      var k2dec = from256to128(aes.update(k));
+                      
+                      aes = node_crypto.createDecipheriv('aes-128-cbc', k2dec, iv);
+                      aes.setAutoPadding(false);
+                      var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
+                      
+                      folderFile.name = name;
+                      folderFile.id = file.h;
+                      folderFile.folderId = folderId;
+                      folderFile.k = kfdec;
+                      folderFile.size = file.s;
+                      listing.folder.files.push(folderFile);
+                    }
+                    if(fileIndex+1 === obj.length) {
+                      console.log(listing,totalLinks);
+                      // add files to total listing
+                      $.each(listing.folder.files,function(findex,file) {
+                        if(file.name.indexOf('.txt') === -1) {
+                            getMegaFolderLink(file,i,mainIndex,totalLinks,linksList,item);
+                        }
+                      });
+                    }
+                  }
+              });
+          });
+        }
+      });
+    }).fail(function() {
+        $('#toggle_'+item.id).addClass('loadItem');
+        $('#'+item.id).find('.showSpinner').hide();
+    });
+}
+
 function getMegaFolderLink(file,i,index,total,linksList,item) {
-  try {
     $.post('https://eu.api.mega.co.nz/cs?id=1&n='+file.folderId+'','[{"a":"g","g":1,"ssl":1,"n":"'+file.id+'"}]').done(function(res) {
       linksList[i] = {};
       linksList[i]['title'] = file.name.replace(',c','');
@@ -420,20 +425,22 @@ function getMegaFolderLink(file,i,index,total,linksList,item) {
       linksList[i]['baseLink'] = item.baseLink;
       linksList[i]['reportLink'] = item.reportLink;
       linksList[i]['link'] = res[0].g;
+      console.log(total,linksList.length,i,index)
       if (total === linksList.length){
         if (linksList.length > 1) {
+            if( $('#sublist_'+item.id+' a').length !== 0 ) {
+                return;
+            }
             megaSearch.printMultiItem(linksList);
             $('#sublist_'+item.id).parent().parent().show();
         } else {
             megaSearch.printSingleItem(linksList);
         }
       }
+    }).fail(function() {
+        $('#toggle_'+item.id).addClass('loadItem');
+        $('#'+item.id).find('.showSpinner').hide();
     });
-  } catch(err) {
-      $('#'+item.id).find('.showSpinner').hide();
-      $('#sublist_'+item.id).parent().parent().find('.loadItem').toggleClass('loadItem','true');
-      $('#toggle_'+item.id).toggleClass('loadItem','true');
-  }
 }
 
 function getMegacrypterInfos(link,i,index,total,linksList,item) {
@@ -888,7 +895,7 @@ megaSearch.printSingleItem = function(item) {
               <div class="left"> \
                 <img src="'+elem.thumbnail+'" class="video_thumbnail"> \
                 <a href="#" data="'+encodeURIComponent(JSON.stringify(elem))+'" class="play"> \
-                <img src="images/play-overlay.png" class="overlay" /> \
+                <img src="images/play-overlay.png" class="overlay" style="top: 10px;margin-left: -10px;"/> \
                 </a>\
               </div> \
               <div style="position: relative;overflow:auto;margin-left:5px;"> \
@@ -929,7 +936,11 @@ megaSearch.printMultiItem = function(items) {
     $("#loading p").empty().append("Loading videos...");
     $("#search").show();
     $("#items_container").show();
-    $('#'+items[0].id).find('.showSpinner').hide();
+    try {
+      $('#'+items[0].id).find('.showSpinner').hide();
+    } catch(err) {
+        console.log(err,items);
+    }
     $.each(items,function(index,elem) {
             if (index === 0) {
               var string = $('#sublist_'+elem.id).parent().parent().find('a').first().text();
@@ -940,7 +951,7 @@ megaSearch.printMultiItem = function(items) {
                           <div class="left"> \
                               <img src="'+elem.thumbnail+'" class="video_thumbnail" /> \
                               <a href="#" data="'+encodeURIComponent(JSON.stringify(elem))+'" class="play"> \
-                              <img src="images/play-overlay.png" class="overlay" /> \
+                              <img src="images/play-overlay.png" class="overlay" style="top: 10px;margin-left: -10px;"/> \
                           </div> \
                           <div style="position: relative;overflow:auto;margin-left:5px;"> \
                             <div class="item_infos" style="position: relative;top: -10px;padding-left:5px;"> \
