@@ -12,6 +12,7 @@ var path = require('path');
 var i18n = require("i18n");
 var nodemailer = require("nodemailer");
 var _ = i18n.__;
+var node_crypto = require('crypto');
 
 /****************************/
 
@@ -123,6 +124,7 @@ megaSearch.init = function(gui,ht5,notif) {
         try {
           var img = $('.bbc_img',res).attr('src');
           item.thumbnail = img;
+          item.baseLink = item.link;
           item.reportLink = $($('.reportlinks a',res)[0]).attr('href');
           var list = $('a.bbc_link',res);
           var table;
@@ -191,6 +193,7 @@ megaSearch.init = function(gui,ht5,notif) {
     var p = $('.highlight').position().top;
     $('#left-component').scrollTop(p+13);
 		var item = JSON.parse(decodeURIComponent($(this).attr("data")));
+    console.log(item);
     var stream = {};
 		stream.title = item.title;
     if (item.key !== undefined){
@@ -238,23 +241,94 @@ function loadPageLinks(list,item,totalLinks) {
             titre = item.title;
           } 
           if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
-            titre = _("This link is a mega folder, can't stream or download it...");
+            try {
+            var folderId = megaLink.match(/(.*)#F!(.*?)!/)[2];
+            var k0 = d64(megaLink.match(/(.*)#F!(.*?)!(.*)/)[3]);
+            var iv = Buffer(16);
+            iv.fill(0);
+            var folderList = [];
+            $.post('https://g.api.mega.co.nz/cs?id=1&n='+folderId+'','[{"a":"f","c":"1","r":"1"}]').done(function(res) {
+              var listing = {}; 
+              listing.folder = {};
+              listing.folder.files = [];
+              $.each(res,function(mainIndex,mainObj){
+                  if (typeof(mainObj) === "object") {
+                    $.each(mainObj,function(ind,obj){
+                        $.each(obj,function(fileIndex,file){ 
+                          if(typeof(obj) === "object") {
+                            if (file.t === 1) {
+                              // decrypt folder
+                              var k = d64(file.k.split(':')[1]);
+                              var a = d64(file.a);
+                              var aes = node_crypto.createDecipheriv('aes-128-ecb', k0, Buffer(0));
+                              aes.setAutoPadding(false);
+                              var kdec = aes.update(k);
+                              aes = node_crypto.createDecipheriv('aes-128-cbc', kdec, iv);
+                              aes.setAutoPadding(false);
+                              
+                              var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
+                              listing.folder.name = name;
+                              listing.folder.key = kdec.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+                            } else {
+                              var folderFile = {};
+                              var k = d64(file.k.split(':')[1]);
+                              var a = d64(file.a);
+                              
+                              var aes = node_crypto.createDecipheriv('aes-128-ecb', k0, Buffer(0));
+                              aes.setAutoPadding(false);
+                              var kfdec = aes.update(k).toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+                              var k2dec = from256to128(aes.update(k));
+                              
+                              aes = node_crypto.createDecipheriv('aes-128-cbc', k2dec, iv);
+                              aes.setAutoPadding(false);
+                              var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
+                              
+                              folderFile.name = name;
+                              folderFile.id = file.h;
+                              folderFile.folderId = folderId;
+                              folderFile.k = kfdec;
+                              folderFile.size = file.s;
+                              listing.folder.files.push(folderFile);
+                            }
+                            if(fileIndex+1 === obj.length) {
+                              console.log(listing,totalLinks);
+                              // add files to total listing
+                              if(listing.folder.files.length > 1 ) {
+                                totalLinks += listing.folder.files.length - 1;
+                              }
+                              $.each(listing.folder.files,function(findex,file) {
+                                  getMegaFolderLink(file,i,mainIndex,totalLinks,linksList,item);
+                                  i+=1;
+                              });
+                            }
+                          }
+                      });
+                  });
+                }
+              });
+            });
+          } catch(err) {
+              $('#'+item.id).find('.showSpinner').hide();
+              $('#sublist_'+item.id).parent().parent().find('.loadItem').toggleClass('loadItem','true');
+              $('#toggle_'+item.id).toggleClass('loadItem','true');
           }
-          linksList[i] = {};
-          linksList[i]['title'] = titre;
-          linksList[i]['thumbnail'] = item.thumbnail;
-          linksList[i]['link'] = megaLink;
-          linksList[i]['itemId'] = item.itemId;
-          linksList[i]['id'] = item.id;
-          linksList[i]['baseLink'] = item.link;
-          linksList[i]['reportLink'] = item.reportLink;
-          i+=1;
-          if (index+1 === totalLinks){
-            if (linksList.length > 1) {
-                megaSearch.printMultiItem(linksList);
-                $('#sublist_'+item.id).parent().parent().show();
-            } else {
-                megaSearch.printSingleItem(linksList);
+          } else {
+            linksList[i] = {};
+            linksList[i]['title'] = titre;
+            linksList[i]['thumbnail'] = item.thumbnail;
+            linksList[i]['link'] = megaLink;
+            linksList[i]['itemId'] = item.itemId;
+            linksList[i]['id'] = item.id;
+            linksList[i]['baseLink'] = item.link;
+            linksList[i]['reportLink'] = item.reportLink;
+            i+=1;
+            if (index+1 === totalLinks){
+              if (linksList.length > 1) {
+                  megaSearch.printMultiItem(linksList);
+                  $('#sublist_'+item.id).parent().parent().show();
+              } else {
+                  megaSearch.printSingleItem(linksList);
+              }
             }
           }
         });
@@ -331,6 +405,35 @@ function loadPageLinks(list,item,totalLinks) {
       console.log('loadPageLinks error: ' + err);
     }
   });
+}
+
+function getMegaFolderLink(file,i,index,total,linksList,item) {
+  try {
+    $.post('https://eu.api.mega.co.nz/cs?id=1&n='+file.folderId+'','[{"a":"g","g":1,"ssl":1,"n":"'+file.id+'"}]').done(function(res) {
+      linksList[i] = {};
+      linksList[i]['title'] = file.name.replace(',c','');
+      linksList[i]['thumbnail'] = item.thumbnail;
+      linksList[i]['size'] = file.size;
+      linksList[i]['key'] = file.k;
+      linksList[i]['itemId'] = item.itemId;
+      linksList[i]['id'] = item.id;
+      linksList[i]['baseLink'] = item.baseLink;
+      linksList[i]['reportLink'] = item.reportLink;
+      linksList[i]['link'] = res[0].g;
+      if (total === linksList.length){
+        if (linksList.length > 1) {
+            megaSearch.printMultiItem(linksList);
+            $('#sublist_'+item.id).parent().parent().show();
+        } else {
+            megaSearch.printSingleItem(linksList);
+        }
+      }
+    });
+  } catch(err) {
+      $('#'+item.id).find('.showSpinner').hide();
+      $('#sublist_'+item.id).parent().parent().find('.loadItem').toggleClass('loadItem','true');
+      $('#toggle_'+item.id).toggleClass('loadItem','true');
+  }
 }
 
 function getMegacrypterInfos(link,i,index,total,linksList,item) {
@@ -832,6 +935,7 @@ megaSearch.printMultiItem = function(items) {
               var string = $('#sublist_'+elem.id).parent().parent().find('a').first().text();
               $('#sublist_'+elem.id).parent().parent().find('a').first().empty().html(string + ' ('+items.length+' '+_("links found")+')');
             }
+            console.log(elem);
             var html = '<div class="youtube_item"> \
                           <div class="left"> \
                               <img src="'+elem.thumbnail+'" class="video_thumbnail" /> \
@@ -896,6 +1000,20 @@ function in_array(needle, haystack){
             found++;
     }
     return -1;
+}
+
+function d64(s) {
+s += '=='.substr((2-s.length*3)&3)
+s = s.replace(/-/g,'+').replace(/_/g,'/').replace(/,/g,'')
+return new Buffer(s, 'base64')
+}
+
+function from256to128(s) {
+  var o = new Buffer(16)
+  for (var i = 0; i < 16; i++) {
+    o[i] = s[i] ^ s[i + 16]
+  }
+  return o
 }
 
 

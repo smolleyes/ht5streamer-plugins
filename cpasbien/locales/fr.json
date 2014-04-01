@@ -18,5 +18,9 @@
 	"Artist: ": "Artist: ",
 	"Open in Cpasbien": "Ouvrir dans Cpasbien",
 	"No results found...": "Aucun résultat trouvé...",
-	"<p>cpb %s section</p>": "<p>cpb %s section</p>"
+	"<p>Cpasbien %s category</p>": "<p>Cpasbien catégorie %s</p>",
+  "<p>Cpasbien %s section</p>": "<p>Cpasbien section %s</p>",
+  "Navigation" : "Navigation",
+  "Movies" :"Films",
+  "Series" : "Séries"
 }

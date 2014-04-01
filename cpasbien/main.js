@@ -82,11 +82,14 @@ if ($.inArray(cpb.gui.settings.locale, localeList) >-1) {
 cpb.menuEntries = ["searchTypes","orderBy","categories"];
 cpb.defaultMenus = ["searchTypes","orderBy"];
 // searchTypes menus and default entry
-cpb.searchTypes = JSON.parse('{"'+_("Search")+'":"search"}');
+cpb.searchTypes = JSON.parse('{"'+_("Search")+'":"search","'+_("Navigation")+'":"navigation"}');
 cpb.defaultSearchType = 'search';
 // orderBy filters and default entry
 cpb.orderBy_filters = JSON.parse('{"'+_("Date")+'":"date","'+_("Seeds")+'":"seeds"}');
 cpb.defaultOrderBy = 'date';
+// orderBy filters and default entry
+cpb.category_filters = JSON.parse('{"'+_("Movies")+'":"films","'+_("Series")+'":"series"}');
+cpb.defaultCategory = 'films';
 // others params
 cpb.has_related = false;
 cpb.categoriesLoaded = false;
@@ -98,28 +101,49 @@ cpb.search = function (query, options,gui) {
     cpb.gui = gui;
     videos_responses = new Array();
     var page = options.currentPage - 1;
+    if(isNaN(page)) {
+      page = 0;
+      cpb.gui.current_page = 1;
+    }
     var query = query.replace(/ /g,'+');
     var url;
-		url='http://www.cpasbien.me/recherche/'+query+'/page-'+page+',trie-'+options.orderBy+'-d';
-    console.log(url)
-    $.get(url,function(res){
-      var videos = {};
-      var list=$('a.lien-rechercher',res);
-      if(list.length === 0 ) {
-          $('#loading').hide();
-          $("#search_results p").empty().append(_("No results found..."));
-          $("#search").show();
-          $("#pagination").hide();
-          return;
-      }
-      try {
-        videos.totalItems = parseInt($('th.titre',res)[0].innerHTML.split(':')[1].trim().replace(' torrents',''));
+    var videos = {};
+    console.log(options)
+    if(options.searchType === "search") {
+      url='http://www.cpasbien.me/recherche/'+query+'/page-'+page+',trie-'+options.orderBy+'-d';
+      $.get(url,function(res){
+        var list=$('a.lien-rechercher',res);
+        if(list.length === 0 ) {
+            $('#loading').hide();
+            $("#search_results p").empty().append(_("No results found..."));
+            $("#search").show();
+            $("#pagination").hide();
+            return;
+        }
+        try {
+          videos.totalItems = parseInt($('th.titre',res)[0].innerHTML.split(':')[1].trim().replace(' torrents',''));
+          analyseResults(videos,list);
+        } catch(err) {
+          videos.totalItems = list.length;
+          analyseResults(videos,list);
+        }
+      });
+    } else {
+      url='http://www.cpasbien.me/view_cat.php?categorie='+options.category+'&page='+page+'';
+      $.get(url,function(res){
+        var list=$('.torrent-aff a',res);
+        if(list.length === 0 ) {
+            $('#loading').hide();
+            $("#search_results p").empty().append(_("No results found..."));
+            $("#search").show();
+            $("#pagination").hide();
+            return;
+        }
+        videos.totalItems = $('th.titre', res)[0].innerHTML.split(':')[1].trim().replace(' torrents','').replace(/[\)\(]/g,'').replace(/<a.*/,'').trim();
         analyseResults(videos,list);
-      } catch(err) {
-        videos.totalItems = list.length;
-        analyseResults(videos,list);
-      }
-    });
+      });
+    }
+    console.log(url);
 }
 
 function analyseResults(videos,list) {
@@ -135,11 +159,16 @@ function analyseResults(videos,list) {
 
 cpb.search_type_changed = function() {
 	searchType = $("#searchTypes_select").val();
-	if (searchType === 'categories') {
-		if (cpb.categoriesLoaded === false) {
-			$('#search').show();
-			$('#search_results p').empty().append(_('Loading categories, please wait...')).show();
-		}
+  category = $("#categories_select").val();
+	if (searchType === 'navigation') {
+    if(cpb.categoriesLoaded === false) {
+        $.each(cpb.category_filters, function(key, value){
+							$('#categories_select').append('<option value="'+value+'">'+key+'</option>');
+        });
+        cpb.categoriesLoaded = true;
+        category = $("#categories_select").val();
+        $("#search p").empty().append(_("<p>Cpasbien %s category</p>",category));
+    }
 		$("#orderBy_select").hide();
 		$("#orderBy_label").hide();
 		$("#categories_label").show();
@@ -147,12 +176,16 @@ cpb.search_type_changed = function() {
 		$("#dateTypes_select").hide();
 		$("#searchFilters_select").hide();
 		$('#video_search_query').prop('disabled', true);
+    $("#search p").empty().append(_("<p>Cpasbien %s category</p>",category));
 	} else {
-		$("#categories_select").hide();
 		$("#dateTypes_select").hide();
+    $("#searchFilters_label").hide();
 		$("#searchFilters_select").hide();
+    $("#categories_label").hide();
+		$("#categories_select").hide();
+    $("#orderBy_label").show();
 		$("#orderBy_select").show();
-		$("#search p").empty().append(_("<p>cpb %s section</p>",searchType));
+		$("#search p").empty().append(_("<p>Cpasbien %s section</p>",searchType));
 		$('#video_search_query').prop('disabled', false);
 	}
 }
