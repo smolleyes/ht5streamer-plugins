@@ -21,7 +21,10 @@ var has_more = true;
 var gs_win;
 var old_count = 0;
 var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Single','Compilation Musical','VO/VOSTFR','Album & Compilation','OST','Films Adulte','Livres Adulte','BD Adulte','Film DIVX & XVID','Film VO/VOSTFR','Film TS, R5, Cam, DVDScreen...','Film full DVD, HD DVD, Blu-ray Disc','Séries TV','Dessins animés','Documentaires, spectacles, concerts, emission tv, sports...','Musique MP3','Musique HQ/Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
-
+var scannedLinks = 0;
+var totalFiles = 0;
+var folderList = [];
+var linksList = [];
 
 megaSearch.init = function(gui,ht5,notif) {
   megaSearch.mainWin = gui;
@@ -79,7 +82,6 @@ megaSearch.init = function(gui,ht5,notif) {
               });
           });
         // si resélection du plugin
-        console.log($('#categories_select option').length)
         } else if ($('#categories_select option').length === 0) {
             megaSearch.notif({title: 'Ht5streamer:',cls:'green',icon: '&#10003;',content:_("forum.mega-search.ws connexion ok !"),btnId:'',btnTitle:'',btnColor:'',btnDisplay: 'none',updateDisplay:'none'});
             $('#search').show();
@@ -197,7 +199,6 @@ megaSearch.init = function(gui,ht5,notif) {
     var p = $('.highlight').position().top;
     $('#left-component').scrollTop(p+13);
 		var item = JSON.parse(decodeURIComponent($(this).attr("data")));
-    console.log(item);
     var stream = {};
 		stream.title = item.title;
     if (item.key !== undefined){
@@ -229,7 +230,10 @@ megaSearch.init = function(gui,ht5,notif) {
 
 function loadPageLinks(list,item,totalLinks) {
   var i=0;
-  var linksList = [];
+  scannedLinks= 0;
+  totalFiles = 0;
+  linksList = [];
+  folderList = [];
   $.each(list,function(index,link) {
     try {
       if(link.indexOf('http://curl.mega-search.ws') !== -1) {
@@ -246,7 +250,6 @@ function loadPageLinks(list,item,totalLinks) {
           } 
           if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
             getFolderLinks(megaLink,item,linksList,totalLinks,i);
-            i+=1;
           } else {
             linksList[i] = {};
             linksList[i]['title'] = titre;
@@ -283,7 +286,6 @@ function loadPageLinks(list,item,totalLinks) {
               var megaLink = $('.biglink',result).text();
               if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
                   getFolderLinks(megaLink,item,linksList,totalLinks,i);
-                  i+=1;
               }
               linksList[i] = {};
               linksList[i]['title'] = titre;
@@ -318,7 +320,6 @@ function loadPageLinks(list,item,totalLinks) {
         }
         if (link.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
             getFolderLinks(link,item,linksList,totalLinks,i);
-            i+=1;
         }
         linksList[i] = {};
         linksList[i]['title'] = titre;
@@ -349,8 +350,8 @@ function getFolderLinks(megaLink,item,linksList,totalLinks,i) {
     var k0 = d64(megaLink.match(/(.*)#F!(.*?)!(.*)/)[3]);
     var iv = Buffer(16);
     iv.fill(0);
-    var folderList = [];
     $.post('https://g.api.mega.co.nz/cs?id=1&n='+folderId+'','[{"a":"f","c":"1","r":"1"}]').done(function(res) {
+      scannedLinks +=1;
       var listing = {}; 
       listing.folder = {};
       listing.folder.files = [];
@@ -387,20 +388,26 @@ function getFolderLinks(megaLink,item,linksList,totalLinks,i) {
                       var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
                       
                       folderFile.name = name;
-                      folderFile.id = file.h;
-                      folderFile.folderId = folderId;
-                      folderFile.k = kfdec;
-                      folderFile.size = file.s;
-                      listing.folder.files.push(folderFile);
+                      if(name.indexOf('.txt') === -1) {
+                        folderFile.id = file.h;
+                        folderFile.folderId = folderId;
+                        folderFile.k = kfdec;
+                        folderFile.size = file.s;
+                        listing.folder.files.push(folderFile);
+                        totalFiles += 1;
+                      }
                     }
                     if(fileIndex+1 === obj.length) {
-                      console.log(listing,totalLinks);
-                      // add files to total listing
-                      $.each(listing.folder.files,function(findex,file) {
-                        if(file.name.indexOf('.txt') === -1) {
-                            getMegaFolderLink(file,i,mainIndex,totalLinks,linksList,item);
+                        folderList.push(listing);
+                        if(scannedLinks === totalLinks) {
+                          // add files to total listing
+                          $.each(folderList,function(mainDirIndex,mainDir) {
+                              $.each(mainDir.folder.files,function(fileIndex,file) {
+                                  getMegaFolderLink(file,i,mainIndex,totalFiles,linksList,item);
+                                  i+=1;
+                              });
+                          });
                         }
-                      });
                     }
                   }
               });
@@ -425,7 +432,6 @@ function getMegaFolderLink(file,i,index,total,linksList,item) {
       linksList[i]['baseLink'] = item.baseLink;
       linksList[i]['reportLink'] = item.reportLink;
       linksList[i]['link'] = res[0].g;
-      console.log(total,linksList.length,i,index)
       if (total === linksList.length){
         if (linksList.length > 1) {
             if( $('#sublist_'+item.id+' a').length !== 0 ) {
@@ -474,7 +480,7 @@ function getMegacrypterInfos(link,i,index,total,linksList,item) {
               linksList[i] = {};
               linksList[i]['link'] = resultObject.url;
               linksList[i]['reportLink'] = item.reportLink;
-              getMegacrypterLink(link,i,index,total,linksList,item)
+              getMegacrypterLink(link,i,index,total,linksList,item);
             }
         });
     });
@@ -946,7 +952,6 @@ megaSearch.printMultiItem = function(items) {
               var string = $('#sublist_'+elem.id).parent().parent().find('a').first().text();
               $('#sublist_'+elem.id).parent().parent().find('a').first().empty().html(string + ' ('+items.length+' '+_("links found")+')');
             }
-            console.log(elem);
             var html = '<div class="youtube_item"> \
                           <div class="left"> \
                               <img src="'+elem.thumbnail+'" class="video_thumbnail" /> \
