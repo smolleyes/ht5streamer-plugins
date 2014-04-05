@@ -149,6 +149,11 @@ megaSearch.init = function(gui,ht5,notif) {
           } catch(err) {
               console.log("Merci déjà envoyé...")
           }
+          var hasFolderlink = false;
+          if ($('.bbc_table', res).html().toLowerCase().match(/lien dossier/) !== null) {
+                console.log('lien dossier detecte...');
+                hasFolderlink = true;
+          } 
           $.each(list,function(index,link) {
             var l = $(this).attr('href');
             if(l.indexOf('http://curl.mega-search.ws') !== -1) {
@@ -164,6 +169,9 @@ megaSearch.init = function(gui,ht5,notif) {
             }
             if (index+1 === list.length){
               megaSearch.totalLinks = scannedLinks.length;
+              if(hasFolderlink){
+                    megaSearch.totalLinks-=1;
+              }
               console.log('TOTAL LINKS FOUND:' + megaSearch.totalLinks);
               if (megaSearch.totalLinks === 0) {
                   $('#'+item.id).find('.showSpinner').hide();
