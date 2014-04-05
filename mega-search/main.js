@@ -169,7 +169,7 @@ megaSearch.init = function(gui,ht5,notif) {
             }
             if (index+1 === list.length){
               megaSearch.totalLinks = scannedLinks.length;
-              if(hasFolderlink){
+              if((hasFolderlink === true) && (megaSearch.totalLinks > 1)){
                     megaSearch.totalLinks-=1;
               }
               console.log('TOTAL LINKS FOUND:' + megaSearch.totalLinks);
