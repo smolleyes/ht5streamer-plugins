@@ -159,11 +159,11 @@ megaSearch.init = function(gui,ht5,notif) {
           } 
           $.each(list,function(index,link) {
             var l = $(this).attr('href');
-            if(l.indexOf('http://curl.mega-search.ws') !== -1) {
+            if(l.indexOf('http://curl.mega-search.ws/') !== -1) {
                 scannedLinks.push(l);
-            } else if (l.indexOf('http://v.gd') !== -1) {
+            } else if (l.indexOf('http://v.gd/') !== -1) {
                 scannedLinks.push(l);
-            } else if (l.indexOf('http://megacrypter.com') !== -1) {
+            } else if (l.indexOf('http://megacrypter.com/') !== -1) {
                 scannedLinks.push(l);
             } else if (l.indexOf('https://mega.co.nz/#!') !== -1) {
                 scannedLinks.push(l);
@@ -245,6 +245,7 @@ function loadPageLinks(list,item,totalLinks) {
   totalFiles = 0;
   linksList = [];
   folderList = [];
+  console.log(list);
   $.each(list,function(index,link) {
     try {
       if(link.indexOf('http://curl.mega-search.ws') !== -1) {
@@ -254,7 +255,12 @@ function loadPageLinks(list,item,totalLinks) {
         }
         console.log('Lien curl ' + link);
         $.get(link,function(res){
-          var titre = $('td.mega',res).text().replace('Fichier MEGA:','').trim().match(/(.*?)Taille/)[1];
+          try {
+            var titre = $('td.mega',res).text().replace('Fichier MEGA:','').trim().match(/(.*?)Taille/)[1];
+          } catch(err) {
+            console.log("titre inconnu " + link)
+            var titre = "titre iconnu...";
+          }
           var megaLink = $('area',res)[0].href;
           if (titre === '') {
             titre = item.title;
