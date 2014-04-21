@@ -32,7 +32,7 @@ omgTorrent.init = function(gui,ht5) {
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.link;
         var id = ((Math.random() * 1e6) | 0);
-        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_torrent"> \
+        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_omg_torrent"> \
                 <img src="images/play-overlay.png" class="overlay" /> \
                 </a>');
         $.get(link, function(res) {
@@ -56,7 +56,7 @@ omgTorrent.init = function(gui,ht5) {
         //ht5.startPlay(video);
     });
     
-    $(ht5.document).on('click','.play_torrent',function(e){
+    $(ht5.document).on('click','.play_omg_torrent',function(e){
         e.preventDefault();
         $('#fbxMsg').remove();
         $('.highlight').toggleClass('highlight','false');
@@ -65,7 +65,7 @@ omgTorrent.init = function(gui,ht5) {
         $('#left-component').scrollTop(p+13);
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.torrent;
-        return omgTorrent.gui.getTorrent(link);
+        omgTorrent.gui.downloadFile(obj.torrent.replace('file:///','http://www.omgtorrent.com/'),obj.title+'.torrent','',true);
     });
 }
 

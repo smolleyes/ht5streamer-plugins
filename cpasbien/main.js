@@ -56,8 +56,7 @@ cpb.init = function(gui,ht5) {
         var p = $('.highlight').position().top;
         $('#left-component').scrollTop(p+13);
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-        var link = obj.torrent;
-        return cpb.gui.getTorrent(link);
+        cpb.gui.downloadFile(obj.torrent.replace('file:///','http://cpasbien.me/'),obj.title+'.torrent','',true);
     });
 }
 

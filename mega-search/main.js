@@ -298,7 +298,6 @@ function loadPageLinks(list,item,totalLinks) {
             type: 'GET',
             url: link,
             dataType: "text",
-            mimeType: "application/octet-stream; charset=x-user-defined",
             success: function (result) {
               var megaLink = $('.biglink',result).text();
               if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
@@ -362,6 +361,20 @@ function loadPageLinks(list,item,totalLinks) {
   });
 }
 
+function decodeName(at) {
+  // remove empty bytes from end
+  var end = at.length
+  while (!at.readUInt8(end - 1)) end--
+
+  at = at.slice(0, end).toString()
+  if (at.substr(0,6) !== 'MEGA{"') {
+    throw new Error('Attributes could not be decrypted with provided key.')
+  }
+
+  var obj = JSON.parse(at.substring(4));
+  return obj.n;
+}
+
 function getFolderLinks(megaLink,item,linksList,totalLinks,i) {
     var folderId = megaLink.match(/(.*)#F!(.*?)!/)[2];
     var k0 = d64(megaLink.match(/(.*)#F!(.*?)!(.*)/)[3]);
@@ -387,7 +400,7 @@ function getFolderLinks(megaLink,item,linksList,totalLinks,i) {
                       aes = node_crypto.createDecipheriv('aes-128-cbc', kdec, iv);
                       aes.setAutoPadding(false);
                       
-                      var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
+                      var name = decodeName(aes.update(a));
                       listing.folder.name = name;
                       listing.folder.key = kdec.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
                     } else {
@@ -402,8 +415,7 @@ function getFolderLinks(megaLink,item,linksList,totalLinks,i) {
                       
                       aes = node_crypto.createDecipheriv('aes-128-cbc', k2dec, iv);
                       aes.setAutoPadding(false);
-                      var name = aes.update(a).toString().replace("MEGA","").split(":")[1].replace(/["}]/g,"");
-                      
+                      var name = decodeName(aes.update(a));
                       folderFile.name = name;
                       if(name.indexOf('.txt') === -1) {
                         folderFile.id = file.h;
