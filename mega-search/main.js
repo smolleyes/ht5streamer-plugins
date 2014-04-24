@@ -20,7 +20,7 @@ var node_crypto = require('crypto');
 var has_more = true;
 var gs_win;
 var old_count = 0;
-var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Single','Compilation Musical','VO/VOSTFR','Album & Compilation','OST','Films Adulte','Livres Adulte','BD Adulte','Film DIVX & XVID','Film VO/VOSTFR','Film TS, R5, Cam, DVDScreen...','Film full DVD, HD DVD, Blu-ray Disc','Séries TV','Dessins animés','Documentaires, spectacles, concerts, emission tv, sports...','Musique MP3','Musique HQ/Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
+var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Singles','Compilation Musical','VO/VOSTFR','Albums','Compilations Musicales','OST','Films Adulte','Livres Adulte','BD Adulte','Films DVDRip & BDRip','Films VO & VOSTFR','Films TS, R5, Cam, DVDScreen','Films HD 720p, 1080p, 3D','Séries TV','Dessins animés','Documentaires, Spectacles, Concerts, Émissions TV, Sports','Musique','Musique HQ / Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
 var scannedLinks = 0;
 var totalFiles = 0;
 var folderList = [];
@@ -262,6 +262,11 @@ function loadPageLinks(list,item,totalLinks) {
             var titre = "titre iconnu...";
           }
           var megaLink = $('area',res)[0].href;
+          if (megaLink.indexOf('download.php') !== -1) {
+              var mid = megaLink.match(/(.*)download.php(.*)/)[2];
+              megaLink = 'http://curl.mega-search.ws/download.php'+mid;
+          }
+          console.log(megaLink)
           if (titre === '') {
             titre = item.title;
           } 
