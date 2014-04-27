@@ -135,11 +135,21 @@ megaSearch.init = function(gui,ht5,notif) {
           item.reportLink = $($('.reportlinks a',res)[0]).attr('href');
           var list = $('a.bbc_link',res);
           var table;
+          var infosSup = '';
           try {
             table = $($('.bbc_table td', res)[4]).html().match(/(.*)Lien MEGA(.*?)</)[1];
           } catch(err) {
               try{
                 table = $($('.bbc_table td', res)[4]).html();
+                if(table=== "") {
+                    try {
+                      table = $($('.bbc_table td', res)[6]).html();
+                      var c = $($('.bbc_table td',res)).length - 7;
+                      infosSup = $($('.bbc_table td',res)[c]).html()+'<br/><br/>';
+                    } catch(err) {
+                        console.log('erreur recup fiche...');
+                    }
+                }
               } catch(err) {
                 console.log('erreur recup fiche...');
               }
@@ -184,7 +194,8 @@ megaSearch.init = function(gui,ht5,notif) {
               } else {
                 $('#fbxMsg').empty().remove();
                 $('.mejs-overlay-button').hide();
-                $('.mejs-container').append('<div id="fbxMsg"><a href="#" id="closePreview" alt="'+_("Close preview")+'" title="'+_("Close preview")+'">X</a><img style="heigth:400px;width:200px;float:left;margin-top:10px;margin-right:10px;" src="'+img+'" />'+table+''+thxBtn+'</div>');
+                
+                $('.mejs-container').append('<div id="fbxMsg"><a href="#" id="closePreview" alt="'+_("Close preview")+'" title="'+_("Close preview")+'">X</a><img style="heigth:400px;width:200px;float:left;margin-top:10px;margin-right:10px;" src="'+img+'" />'+table+''+infosSup+''+thxBtn+'</div>');
                 $('#fbxMsg').hide().fadeIn(2000);
                 loadPageLinks(scannedLinks,item,megaSearch.totalLinks);
               }
