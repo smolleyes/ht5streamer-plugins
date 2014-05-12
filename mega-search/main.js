@@ -20,7 +20,7 @@ var node_crypto = require('crypto');
 var has_more = true;
 var gs_win;
 var old_count = 0;
-var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Singles','Compilation Musical','VO/VOSTFR','Albums','Compilations Musicales','OST','Films Adulte','Livres Adulte','BD Adulte','Films DVDRip & BDRip','Films VO & VOSTFR','Films TS, R5, Cam, DVDScreen','Films HD 720p, 1080p, 3D','Séries TV','Dessins animés','Documentaires, Spectacles, Concerts, Émissions TV, Sports','Musique','Musique HQ / Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
+var sectionsList = new Array('VF','VO/VOST','Album Complet','OST / BO','Singles','Compilation Musical','VO/VOSTFR','Albums','Compilations Musicales','OST','Films Adulte','Livres Adulte','BD Adulte','Films DVDRip & BDRip','Films VO & VOSTFR','Films TS, R5, Cam, DVDScreen','Films HD 720p, 1080p, 3D','Films HD 720p, 1080p, 3D.','Séries TV','Dessins animés','Documentaires, Spectacles, Concerts, Émissions TV, Sports','Musique','Musique HQ / Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
 var scannedLinks = 0;
 var totalFiles = 0;
 var folderList = [];
@@ -621,8 +621,8 @@ megaSearch.loadMenus = function() {
       var subList = [];
       $.each(sections,function(index,name){
         var id = $(this).attr('id');
-        var name = $(this).find('td.info a').text();
-        var href = $(this).find('td.info a').attr('href');
+        var name = $(this).find('td.info a.subject').text();
+        var href = $(this).find('td.info a.subject').attr('href');
         if ($(content).find('tr#'+id+'_children').length !== 0) {
           subList.push(id);
         } else {
