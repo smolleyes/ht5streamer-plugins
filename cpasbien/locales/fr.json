@@ -19,8 +19,10 @@
 	"Open in Cpasbien": "Ouvrir dans Cpasbien",
 	"No results found...": "Aucun résultat trouvé...",
 	"<p>Cpasbien %s category</p>": "<p>Cpasbien catégorie %s</p>",
-  "<p>Cpasbien %s section</p>": "<p>Cpasbien section %s</p>",
-  "Navigation" : "Navigation",
-  "Movies" :"Films",
-  "Series" : "Séries"
+	"<p>Cpasbien %s section</p>": "<p>Cpasbien section %s</p>",
+	"Navigation": "Navigation",
+	"Series": "Séries",
+	"links found": "links found",
+	"Open in Mega-search": "Open in Mega-search",
+	"Download": "Download"
 }

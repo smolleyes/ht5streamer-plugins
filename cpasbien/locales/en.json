@@ -1,1 +1,11 @@
-{}
+{
+	"Search": "Search",
+	"Navigation": "Navigation",
+	"Date": "Date",
+	"Seeds": "Seeds",
+	"Movies": "Movies",
+	"Series": "Series",
+	"<p>Cpasbien %s section</p>": "<p>Cpasbien %s section</p>",
+	"<p>Cpasbien %s category</p>": "<p>Cpasbien %s category</p>",
+	"Loading videos...": "Loading videos..."
+}
