@@ -232,7 +232,7 @@ songza.load_genre_stations = function(datas) {
 	$('#items_container').empty().append('<ul id="songza_cont" class="list" style="margin:0;"></ul>');
 	console.log(datas);
 	$.each(datas.station_ids,function(index,id) {
-		$.get('http://songza.com/api/1/station/'+id,function(res) {
+		$.get('http://anonymouse.org/cgi-bin/anon-www.cgi/http://songza.com/api/1/station/'+id,function(res) {
 			var station=res;
 			if ($('#songza_item_'+station.id).length === 1) {return;}
 			var station = res;
@@ -316,7 +316,7 @@ songza.load_next = function(id) {
 		return;
 	}
 	$('.highlight').toggleClass('highlight','false');
-	$.get('http://songza.com/api/1/station/'+id+'/next',function(res) {
+	$.get('http://www.unblockpirate.com/index.php?q='+songza.gui.Base64.encode('http://songza.com/api/1/station/'+id+'/next'),function(res) {
 		if ($('#songza_item_'+res.song.id).length === 1) {return;}
 		var html = '<li class="youtube_item"> \
 			<div class="left"> \

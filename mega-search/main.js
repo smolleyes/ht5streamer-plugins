@@ -129,7 +129,7 @@ megaSearch.init = function(gui,ht5,notif) {
       // recupere liens de la page de presentation
       $.get(item.link,function(res) {
         try {
-          var img = $('.bbc_img',res).attr('src');
+          var img = $($('.bbc_img',res)[0]).attr('src');
           item.thumbnail = img;
           item.baseLink = item.link;
           item.reportLink = $($('.reportlinks a',res)[0]).attr('href');
@@ -755,7 +755,7 @@ megaSearch.search = function(query,options) {
 megaSearch.loadSearchItems = function(listMain) {
     $('#items_container').empty().append('<ul id="megaSearch_cont" class="list" style="margin:0;"></ul>');
     $.each(listMain,function(index1,data) {
-      var img = $('.bbc_img',data).attr('src');
+      var img = $($('.bbc_img',data)[0]).attr('src');
       var list = $('a.bbc_link',data);
       var item = {};
       //item.title = $($('span.bbc_color',data)[0]).text(); 
