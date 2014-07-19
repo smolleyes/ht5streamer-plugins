@@ -225,9 +225,9 @@ megaSearch.init = function(gui,ht5,notif) {
     var stream = {};
 		stream.title = item.title;
     if (item.key !== undefined){
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&key='+encodeURIComponent(item.key)+'&size='+item.size;
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link+'&key='+encodeURIComponent(item.key)+'&size='+item.size;
     } else {
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link); 
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link; 
     }
     megaSearch.gui.startPlay(stream);
   });
@@ -242,9 +242,9 @@ megaSearch.init = function(gui,ht5,notif) {
     var stream = {};
 		stream.title = item.title;
     if (item.key !== undefined){
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&key='+encodeURIComponent(item.key)+'&size='+item.size+'&download';
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link+'&key='+encodeURIComponent(item.key)+'&size='+item.size+'&download';
     } else {
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&download'; 
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link+'&download'; 
     }
     megaSearch.gui.startPlay(stream);
   });
