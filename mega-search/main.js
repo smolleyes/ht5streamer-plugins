@@ -282,7 +282,7 @@ function loadPageLinks(list,item,totalLinks) {
 				if(err || file === undefined) {
 					console.log('fichier supprimé sur mega.co ...');
 					$('#'+item.id).find('.showSpinner').hide();
-					$('#'+item.id).addClass('loadItem');
+					$('#toggle_'+item.id).addClass('loadItem');
 					if (index+1 === totalLinks){
 					  if (linksList.length > 1) {
 						  megaSearch.printMultiItem(linksList);
