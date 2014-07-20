@@ -13,6 +13,7 @@ var i18n = require("i18n");
 var nodemailer = require("nodemailer");
 var _ = i18n.__;
 var node_crypto = require('crypto');
+var mega = require('mega');
 
 /****************************/
 
@@ -225,9 +226,9 @@ megaSearch.init = function(gui,ht5,notif) {
     var stream = {};
 		stream.title = item.title;
     if (item.key !== undefined){
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link+'&key='+encodeURIComponent(item.key)+'&size='+item.size;
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&key='+encodeURIComponent(item.key)+'&size='+item.size;
     } else {
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link; 
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link); 
     }
     megaSearch.gui.startPlay(stream);
   });
@@ -242,9 +243,9 @@ megaSearch.init = function(gui,ht5,notif) {
     var stream = {};
 		stream.title = item.title;
     if (item.key !== undefined){
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link+'&key='+encodeURIComponent(item.key)+'&size='+item.size+'&download';
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&key='+encodeURIComponent(item.key)+'&size='+item.size+'&download';
     } else {
-      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+item.link+'&download'; 
+      stream.link = 'http://'+megaSearch.gui.ipaddress+':8888/?file='+encodeURIComponent(item.link)+'&download'; 
     }
     megaSearch.gui.startPlay(stream);
   });
@@ -271,36 +272,73 @@ function loadPageLinks(list,item,totalLinks) {
             var titre = $('td.mega',res).text().replace('Fichier MEGA:','').trim().match(/(.*?)Taille/)[1];
           } catch(err) {
             console.log("titre inconnu " + link)
-            var titre = "titre iconnu...";
+            var titre = undefined;
           }
           var code = base64_decode(res.match(/id="code"(.*?)>(.*?)<\/div>/)[2]);
-          console.log(code);
           var megaLink = decrypter(maCleDeCryptage,code);
-          console.log(titre)
-          if ((titre === '') || (titre == undefined)) {
-            titre = item.title;
-          } 
-          if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
-            getFolderLinks(megaLink,item,linksList,totalLinks,i);
+          if ((titre === '') || (titre == undefined) || (titre === "titre inconnu...")) {
+            mega.file(megaLink).loadAttributes(function(err, file) {
+				console.log(file,megaLink)
+				if(err || file === undefined) {
+					console.log('fichier supprimé sur mega.co ...');
+					if (index+1 === totalLinks){
+					  if (linksList.length > 1) {
+						  megaSearch.printMultiItem(linksList);
+						  $('#sublist_'+item.id).parent().parent().show();
+					  } else {
+						  megaSearch.printSingleItem(linksList);
+					  }
+					} else {
+						return true;
+					}
+				} else {
+					item.title=file.name;
+					if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+						getFolderLinks(megaLink,item,linksList,totalLinks,i);
+					} else {
+						linksList[i] = {};
+						linksList[i]['title'] = file.name;
+						linksList[i]['thumbnail'] = item.thumbnail;
+						linksList[i]['link'] = megaLink;
+						linksList[i]['itemId'] = item.itemId;
+						linksList[i]['id'] = item.id;
+						linksList[i]['baseLink'] = item.link;
+						linksList[i]['reportLink'] = item.reportLink;
+						i+=1;
+						if (index+1 === totalLinks){
+						  if (linksList.length > 1) {
+							  megaSearch.printMultiItem(linksList);
+							  $('#sublist_'+item.id).parent().parent().show();
+						  } else {
+							  megaSearch.printSingleItem(linksList);
+						  }
+						}
+					}
+				}
+			});
           } else {
-            linksList[i] = {};
-            linksList[i]['title'] = titre;
-            linksList[i]['thumbnail'] = item.thumbnail;
-            linksList[i]['link'] = megaLink;
-            linksList[i]['itemId'] = item.itemId;
-            linksList[i]['id'] = item.id;
-            linksList[i]['baseLink'] = item.link;
-            linksList[i]['reportLink'] = item.reportLink;
-            i+=1;
-            if (index+1 === totalLinks){
-              if (linksList.length > 1) {
-                  megaSearch.printMultiItem(linksList);
-                  $('#sublist_'+item.id).parent().parent().show();
-              } else {
-                  megaSearch.printSingleItem(linksList);
-              }
-            }
-          }
+			  if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+				getFolderLinks(megaLink,item,linksList,totalLinks,i);
+			  } else {
+				linksList[i] = {};
+				linksList[i]['title'] = titre;
+				linksList[i]['thumbnail'] = item.thumbnail;
+				linksList[i]['link'] = megaLink;
+				linksList[i]['itemId'] = item.itemId;
+				linksList[i]['id'] = item.id;
+				linksList[i]['baseLink'] = item.link;
+				linksList[i]['reportLink'] = item.reportLink;
+				i+=1;
+				if (index+1 === totalLinks){
+				  if (linksList.length > 1) {
+					  megaSearch.printMultiItem(linksList);
+					  $('#sublist_'+item.id).parent().parent().show();
+				  } else {
+					  megaSearch.printSingleItem(linksList);
+				  }
+				}
+			  }
+			}
         });
       //lien vd
       } else if (link.indexOf('http://v.gd') !== -1) {
