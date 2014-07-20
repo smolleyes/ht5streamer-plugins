@@ -127,10 +127,11 @@ megaSearch.init = function(gui,ht5,notif) {
       } catch(err) {
         console.log(err);
       }
+      
       // recupere liens de la page de presentation
       $.get(item.link,function(res) {
         try {
-          var img = $($('.bbc_img',res)[0]).attr('src');
+          var img = $('.bbc_table img.resized',res)[0].src;
           item.thumbnail = img;
           item.baseLink = item.link;
           item.reportLink = $($('.reportlinks a',res)[0]).attr('href');
