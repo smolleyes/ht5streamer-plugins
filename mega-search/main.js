@@ -136,7 +136,11 @@ megaSearch.init = function(gui,ht5,notif) {
 			try {
 				img = $('.bbc_table img.resized',res)[0].src;
 			} catch(err) {
-				img = $('.bbc_table img', res)[0].src;
+				try {
+					img = $('.bbc_table img', res)[0].src;
+				} catch(err) {
+					img = $('.bbc_img.resized', res).last().attr('src');
+				}
 			}
           item.thumbnail = img;
           item.baseLink = item.link;
