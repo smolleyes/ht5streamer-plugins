@@ -92,6 +92,7 @@ megaFiles.search = function (query, options, gui){
 			response.on('end',function(){
 				try {
 					var datas = data.join('');
+					console.log(datas)
 				} catch(err) {
 					console.log(err);
 					return;
