@@ -14,6 +14,7 @@ var nodemailer = require("nodemailer");
 var _ = i18n.__;
 var node_crypto = require('crypto');
 var mega = require('mega');
+var __ = require('underscore');
 
 /****************************/
 
@@ -288,13 +289,14 @@ function loadPageLinks(list,item,totalLinks) {
 							console.log('fichier supprimé sur mega.co ...');
 							console.log(index+1,totalLinks)
 							if (index+1 === totalLinks){
+								var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 								$('#'+item.id).find('.showSpinner').hide();
 								$('#toggle_'+item.id).addClass('loadItem');
-							  if (linksList.length > 1) {
-								  megaSearch.printMultiItem(linksList);
+							  if (links.length > 1) {
+								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
-								  megaSearch.printSingleItem(linksList);
+								  megaSearch.printSingleItem(links);
 							  }
 							}
 						} else {
@@ -309,13 +311,14 @@ function loadPageLinks(list,item,totalLinks) {
 							i+=1;
 							console.log(index+1,totalLinks)
 							if (index+1 === totalLinks){
+								var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 								$('#'+item.id).find('.showSpinner').hide();
 								$('#toggle_'+item.id).addClass('loadItem');
-							  if (linksList.length > 1) {
-								  megaSearch.printMultiItem(linksList);
+							  if (links.length > 1) {
+								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
-								  megaSearch.printSingleItem(linksList);
+								  megaSearch.printSingleItem(links);
 							  }
 							}
 						}
@@ -332,13 +335,14 @@ function loadPageLinks(list,item,totalLinks) {
 					i+=1;
 					console.log(index+1,totalLinks)
 					if (index+1 === totalLinks){
+						var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 						$('#'+item.id).find('.showSpinner').hide();
 						$('#toggle_'+item.id).addClass('loadItem');
-					  if (linksList.length > 1) {
-						  megaSearch.printMultiItem(linksList);
+					  if (links.length > 1) {
+						  megaSearch.printMultiItem(links);
 						  $('#sublist_'+item.id).parent().parent().show();
 					  } else {
-						  megaSearch.printSingleItem(linksList);
+						  megaSearch.printSingleItem(links);
 					  }
 					}
 				}
@@ -371,13 +375,16 @@ function loadPageLinks(list,item,totalLinks) {
               linksList[i]['reportLink'] = item.reportLink;
               i+=1;
               if (index+1 === totalLinks){
-                if (linksList.length > 1) {
-                    megaSearch.printMultiItem(linksList);
-                    $('#sublist_'+item.id).parent().parent().show();
-                } else {
-                    megaSearch.printSingleItem(linksList);
-                }
-              }
+					var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
+					$('#'+item.id).find('.showSpinner').hide();
+					$('#toggle_'+item.id).addClass('loadItem');
+				  if (links.length > 1) {
+					  megaSearch.printMultiItem(links);
+					  $('#sublist_'+item.id).parent().parent().show();
+				  } else {
+					  megaSearch.printSingleItem(links);
+				  }
+			  }
             }
         });
       //lien megacrypter
@@ -405,13 +412,16 @@ function loadPageLinks(list,item,totalLinks) {
         linksList[i]['reportLink'] = item.reportLink;
         i+=1;
         if (index+1 === totalLinks){
-          if (linksList.length > 1) {
-              megaSearch.printMultiItem(linksList);
-              $('#sublist_'+item.id).parent().parent().show();
-          } else {
-              megaSearch.printSingleItem(linksList);
-          }
-        }
+			var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
+			$('#'+item.id).find('.showSpinner').hide();
+			$('#toggle_'+item.id).addClass('loadItem');
+		  if (links.length > 1) {
+			  megaSearch.printMultiItem(links);
+			  $('#sublist_'+item.id).parent().parent().show();
+		  } else {
+			  megaSearch.printSingleItem(links);
+		  }
+		}
       }
     } catch(err) {
       console.log('loadPageLinks error: ' + err);
@@ -520,14 +530,15 @@ function getMegaFolderLink(file,i,index,total,linksList,item) {
       linksList[i]['reportLink'] = item.reportLink;
       linksList[i]['link'] = res[0].g;
       if (total === linksList.length){
-        if (linksList.length > 1) {
+		var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
+        if (links.length > 1) {
             if( $('#sublist_'+item.id+' a').length !== 0 ) {
                 return;
             }
-            megaSearch.printMultiItem(linksList);
+            megaSearch.printMultiItem(links);
             $('#sublist_'+item.id).parent().parent().show();
         } else {
-            megaSearch.printSingleItem(linksList);
+            megaSearch.printSingleItem(links);
         }
       }
     }).fail(function() {
@@ -1029,12 +1040,13 @@ megaSearch.printMultiItem = function(items) {
     $("#loading p").empty().append("Loading videos...");
     $("#search").show();
     $("#items_container").show();
+    var list = __.sortBy(items, function(o) { return o.title; })
     try {
-      $('#'+items[0].id).find('.showSpinner').hide();
+      $('#'+list[0].id).find('.showSpinner').hide();
     } catch(err) {
-        console.log(err,items);
+        console.log(err,list);
     }
-    $.each(items,function(index,elem) {
+    $.each(list,function(index,elem) {
             if (index === 0) {
               var string = $('#sublist_'+elem.id).parent().parent().find('a').first().text();
               $('#sublist_'+elem.id).parent().parent().find('a').first().empty().html(string + ' ('+items.length+' '+_("links found")+')');
