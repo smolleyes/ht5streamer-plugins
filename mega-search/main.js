@@ -200,7 +200,7 @@ megaSearch.init = function(gui,ht5,notif) {
                 
                 $('.mejs-container').append('<div id="fbxMsg"><a href="#" id="closePreview" alt="'+_("Close preview")+'" title="'+_("Close preview")+'">X</a><img style="heigth:400px;width:200px;float:left;margin-top:10px;margin-right:10px;" src="'+img+'" />'+table+''+infosSup+''+thxBtn+'</div>');
                 $('#fbxMsg').hide().fadeIn(2000);
-                if (megaSearch.totalLinks > 1) {
+                if (megaSearch.totalLinks > 1 || hasFolderlink) {
 					loadPageLinks(scannedLinks,item,megaSearch.totalLinks,true);
 				} else {
 					loadPageLinks(scannedLinks,item,megaSearch.totalLinks,false);
@@ -286,6 +286,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
           var megaLink = decrypter(maCleDeCryptage,code);
 			if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
 				console.log("NEW FOLDER LINK:" + item)
+				loadInSub = true;
 				getFolderLinks(megaLink,item,linksList,totalLinks,i,loadInSub);
 			} else {
 				if ((titre === '') || (titre == undefined) || (titre === "titre inconnu...")) {
@@ -370,6 +371,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
             success: function (result) {
               var megaLink = $('.biglink',result).text();
               if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+				  loadInSub = true;
                   getFolderLinks(megaLink,item,linksList,totalLinks,i,loadInSub);
               }
               linksList[i] = {};
@@ -407,6 +409,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
             titre = item.title;
         }
         if (link.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
+			loadInSub = true;
             getFolderLinks(link,item,linksList,totalLinks,i,loadInSub);
         }
         linksList[i] = {};
