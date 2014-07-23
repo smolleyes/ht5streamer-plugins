@@ -132,7 +132,12 @@ megaSearch.init = function(gui,ht5,notif) {
       // recupere liens de la page de presentation
       $.get(item.link,function(res) {
         try {
-          var img = $('.bbc_table img.resized',res)[0].src;
+			var img;
+			try {
+				img = $('.bbc_table img.resized',res)[0].src;
+			} catch(err) {
+				img = $('.bbc_table img', res)[0].src;
+			}
           item.thumbnail = img;
           item.baseLink = item.link;
           item.reportLink = $($('.reportlinks a',res)[0]).attr('href');
@@ -285,14 +290,12 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 		  var code = base64_decode(res.match(/id="code"(.*?)>(.*?)<\/div>/)[2]);
           var megaLink = decrypter(maCleDeCryptage,code);
 			if (megaLink.match(/https:\/\/mega.co.nz\/#F!/) !== null) {
-				console.log("NEW FOLDER LINK:" + item)
 				loadInSub = true;
 				getFolderLinks(megaLink,item,linksList,totalLinks,i,loadInSub);
 			} else {
 				if ((titre === '') || (titre == undefined) || (titre === "titre inconnu...")) {
 					mega.file(megaLink).loadAttributes(function(err, file) {
 						if(err || file === undefined) {
-							console.log(index+1, totalLinks)
 							if (index+1 === totalLinks){
 								var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 								$('#'+item.id).find('.showSpinner').hide();
@@ -315,13 +318,11 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 							linksList[i]['reportLink'] = item.reportLink;
 							linksList[i]['title'] = file.name;
 							i+=1;
-							console.log(index+1, totalLinks, linksList)
 							if (index+1 === totalLinks){
 								var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 								$('#'+item.id).find('.showSpinner').hide();
 								$('#toggle_'+item.id).addClass('loadItem');
 							  if (linksList.length > 1 || loadInSub) {
-								  console.log("print multi:" + links)
 								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
@@ -340,7 +341,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 					linksList[i]['reportLink'] = item.reportLink;
 					linksList[i]['title'] = titre;
 					i+=1;
-					console.log(index+1, totalLinks, linksList)
 					if (index+1 === totalLinks){
 						var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 						$('#'+item.id).find('.showSpinner').hide();
