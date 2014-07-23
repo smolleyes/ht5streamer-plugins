@@ -4,7 +4,7 @@
 	"Searching mode...": "Mode recherche...",
 	"forum.mega-search.ws connexion ok !": "forum.mega-search.ws connexion ok !",
 	"Mega-search engine loaded successfully...": "Mega-search chargé avec succès...",
-	"Open in Mega-search": "ouvrir dans Mega-search",
+	"Open in Mega-search": "Ouvrir dans Mega-search",
 	"Open in MegaSearch": "Ouvrir dans Mega-Search",
 	"Navigation in the %s section": "Navigation dans la section %s",
 	"Ok": "Ok",
@@ -21,6 +21,6 @@
 	"All category": "toutes les catégories",
 	"results found...": "resultats trouvés...",
 	"Artist: ": "Artiste: ",
-	"Open in Mega-search": "Ouvrir dans Mega-search",
-  "Close preview" : "Fermer l'aperçu"
+	"Close preview": "Fermer l'aperçu",
+	"Loading videos...": "Loading videos..."
 }
