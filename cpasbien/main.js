@@ -37,7 +37,8 @@ cpb.init = function(gui,ht5) {
                 </a>');
         $.get(link, function(res) {
             var table = $("div.torrent", res).html();
-            obj.torrent = $('.download-torrent a',res)[0].href;
+            var name = path.basename($('.download-torrent a',res)[0].href);
+            obj.torrent = 'http://www.cpasbien.pe/download-torrent/'+name;
             $('#fbxMsg').empty().remove();
             $('#preloadTorrent').remove();
             $('.mejs-overlay-button').hide();
@@ -56,7 +57,7 @@ cpb.init = function(gui,ht5) {
         var p = $('.highlight').position().top;
         $('#left-component').scrollTop(p+13);
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-        cpb.gui.downloadFile(obj.torrent.replace('file:///','http://cpasbien.me/'),obj.title+'.torrent','',true);
+        cpb.gui.getTorrent(obj.torrent);
     });
 }
 
@@ -158,7 +159,7 @@ function analyseResults(videos,list) {
 
 cpb.search_type_changed = function() {
 	searchType = $("#searchTypes_select").val();
-  category = $("#categories_select").val();
+	category = $("#categories_select").val();
 	if (searchType === 'navigation') {
     if(cpb.categoriesLoaded === false) {
         $.each(cpb.category_filters, function(key, value){
