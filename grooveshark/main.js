@@ -83,10 +83,10 @@ gshark.init = function(gui,ht5) {
 				$.each(list,function(index,item) {
 					if($(item).hasClass('highlight')) {
 						gshark.position = parseInt(index+1);
-						console.log("NEED MORE SOUND... loading ! ")
 					}
 					if(index+1 === list.length) {
 						if(gshark.position === count && totalItems - gshark.position > 0) {
+							console.log("NEED MORE SOUND... loading ! ")
 							get_more_songs(0)
 						}
 					}
@@ -172,8 +172,9 @@ gshark.search = function(query,options) {
 			
 gshark.load_more = function(more) {
 	// hide load button of total results reached
+	totalItems = parseInt($('.list-header-play-now',gs_win.window.document.body).text().split('(')[1].replace(')',''));
 	gs_win.window.scrollTo(0,gs_win.window.document.height - 50);
-	if (parseInt(totalItems) !== parseInt($("#gshark_cont li.youtube_item").length)) {
+	if ($('.list-row-release-to-load',gs_win.window.document.body).length > 0) {
 		if (more === true) {
 			gshark.add_to_playlist(true);
 		} else {
@@ -264,12 +265,15 @@ gshark.get_songs = function(more,position) {
 		if(index+1 === list.length) {
 			setTimeout(function() {
 				if(gshark.position !== null) {
-					$('.highlight').toggleClass('highlight','false');
 					$($("#gshark_cont li.youtube_item")[gshark.position - 1]).addClass('highlight');
 					var p = $('.highlight').position().top;
 					$('#left-component').scrollTop(p+12);
 				}
 			},2000);
+			totalItems = parseInt($('.list-header-play-now',gs_win.window.document.body).text().split('(')[1].replace(')',''));
+			if (parseInt(totalItems) === parseInt($("#gshark_cont li.youtube_item").length)) {
+				$('#load_more_gshark').hide();
+			}
 		}
 	});
 }
@@ -321,6 +325,12 @@ gshark.get_albums = function(more) {
 						</div> \
 					</li>';
 		$("#gshark_cont").append(html);
+		if(index+1 === list.length) {
+			totalItems = parseInt($('.list-header-play-now',gs_win.window.document.body).text().split('(')[1].replace(')',''));
+			if (parseInt(totalItems) === parseInt($("#gshark_cont li.youtube_item").length)) {
+				$('#load_more_gshark').hide();
+			}
+		}
 	});
 }
 
@@ -371,6 +381,12 @@ gshark.get_playlists = function(more) {
 						</div> \
 					</li>';
 		$("#gshark_cont").append(html);
+		if(index+1 === list.length) {
+			totalItems = parseInt($('.list-header-play-now',gs_win.window.document.body).text().split('(')[1].replace(')',''));
+			if (parseInt(totalItems) === parseInt($("#gshark_cont li.youtube_item").length)) {
+				$('#load_more_gshark').hide();
+			}
+		}
 	});
 }
 
