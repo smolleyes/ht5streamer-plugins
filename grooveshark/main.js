@@ -172,7 +172,6 @@ gshark.search = function(query,options) {
 			
 gshark.load_more = function(more) {
 	// hide load button of total results reached
-	totalItems = parseInt($('.list-header-play-now',gs_win.window.document.body).text().split('(')[1].replace(')',''));
 	gs_win.window.scrollTo(0,gs_win.window.document.height - 50);
 	if ($('.list-row-release-to-load',gs_win.window.document.body).length > 0) {
 		if (more === true) {
@@ -190,6 +189,7 @@ gshark.add_to_playlist =  function(more) {
 		gshark.get_songs(more);
 		console.log("loading sounds");
 	} else if ((gshark.searchType === "albums") && (gshark.ignoreSection === false)) {
+		console.log("load albums")
 		gshark.get_albums(more);
 		console.log("loading albums");
 	} else if ((gshark.searchType === "playlists") && (gshark.ignoreSection === false)) {
