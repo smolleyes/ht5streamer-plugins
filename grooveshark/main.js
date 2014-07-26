@@ -3,6 +3,7 @@
 var gshark = {};
 gshark.engine_name = 'Grooveshark';
 gshark.initialized = false;
+gshark.position = null;
 
 /********************* Node modules *************************/
 
@@ -39,6 +40,7 @@ gshark.init = function(gui,ht5) {
 			gs_win = gshark.page;
 			gshark.search_type_changed();
 			gshark.wait_songs();
+			gshark.initialized = true;
 		});
 		gshark.page.on('close', function() {
 		  this.hide();
@@ -67,9 +69,28 @@ gshark.init = function(gui,ht5) {
 			gshark.gui.startPlay(media);
 			$('#gshark_item_'+song.id).closest('.youtube_item').toggleClass('highlight','true');
 			var p = $('.highlight').position().top;
-      $('#left-component').scrollTop(p+13);
+			$('#left-component').scrollTop(p+12);
 			if (ht5.engine.engine_name === 'Grooveshark') {
 				$('#mep_0').append('<img id="cover" src="'+song.thumbnail+'" height="360" width="360" style="position: absolute;top: 50%;left: 50%;width: 360px;height: 360px;margin-top: -180px;margin-left: -180px;"/>');
+			}
+			// check if need to load more song
+			totalItems = parseInt($('.list-header-play-now',gs_win.window.document.body).text().split('(')[1].replace(')',''));
+			var count = parseInt($("#gshark_cont li.youtube_item").length);
+			var list = $("#gshark_cont li.youtube_item");
+			var hash = gs_win.window.document.location.hash;
+			gshark.position = 0;
+			if(hash.indexOf('#!/album/') !== -1 || hash.indexOf('#!/playlist/') !== -1  || hash.indexOf('#!/songs/') !== -1  || hash.indexOf('#!/popular') !== -1 || hash.indexOf('#!/search/songs/') !== -1 ) {
+				$.each(list,function(index,item) {
+					if($(item).hasClass('highlight')) {
+						gshark.position = parseInt(index+1);
+						console.log("NEED MORE SOUND... loading ! ")
+					}
+					if(index+1 === list.length) {
+						if(gshark.position === count && totalItems - gshark.position > 0) {
+							get_more_songs(0)
+						}
+					}
+				});
 			}
 		});
 	});
@@ -135,6 +156,7 @@ gshark.search = function(query,options) {
 	gshark.currentSearch = query;
 	gshark.searchInit = false;
 	gshark.ignoreSection = false;
+	gshark.position = null;
 	if ((query === '') && (options.searchType !== 'popular')) {
 		$('#video_search_query').attr('placeholder','').focus();
 		$('#loading').hide();
@@ -186,7 +208,7 @@ gshark.search_type_changed = function() {
 	}
 }
 
-gshark.get_songs = function(more) {
+gshark.get_songs = function(more,position) {
 	if (more === false) {
 		$('#items_container').empty().append('<ul id="gshark_cont" class="list" style="margin:0;"></ul><button style="width:100%;" id="load_more_gshark">'+_("Load more")+'</button>');
 	}
@@ -239,6 +261,16 @@ gshark.get_songs = function(more) {
 						</div> \
 					</li>';
 		$("#gshark_cont").append(html);
+		if(index+1 === list.length) {
+			setTimeout(function() {
+				if(gshark.position !== null) {
+					$('.highlight').toggleClass('highlight','false');
+					$($("#gshark_cont li.youtube_item")[gshark.position - 1]).addClass('highlight');
+					var p = $('.highlight').position().top;
+					$('#left-component').scrollTop(p+12);
+				}
+			},2000);
+		}
 	});
 }
 
@@ -346,7 +378,7 @@ gshark.wait_songs = function() {
 	console.log("waiting for page loading : "+gshark.searchType +", search init : "+gshark.searchInit);
 	if ((gshark.searchType === 'popular') || (gshark.ignoreSection === true)) {
 		var count = $('li.song-row',gs_win.window.document.body).length;
-		if (count === 0) {
+		if (parseInt(count) === 0) {
 			setTimeout(function(){gshark.wait_songs()},1000);
 		} else {
 			$('#search').css({"position":"fixed","z-index": "500","top": "74px","width": "46%","background": "white","overflow": "auto","height":"25px"}).show();
@@ -354,7 +386,7 @@ gshark.wait_songs = function() {
 			$('#search').show();
 			$('#items_container').show();
 			gshark.get_songs(false);
-			get_more_songs(0);
+			//get_more_songs(0);
 		}
 	} else {
 		if (gshark.searchInit === false) {
@@ -448,7 +480,7 @@ gshark.wait_songs = function() {
 				} else if (type === 'playlist') {
 					gshark.get_playlists(false);
 				}
-				get_more_songs(0);
+				//get_more_songs(0);
 			}
 		}
 	}

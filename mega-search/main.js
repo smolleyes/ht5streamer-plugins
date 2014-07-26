@@ -299,7 +299,17 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 			} else {
 				if ((titre === '') || (titre == undefined) || (titre === "titre inconnu...")) {
 					mega.file(megaLink).loadAttributes(function(err, file) {
+						console.log(file)
 						if(err || file === undefined) {
+							linksList[i] = {};
+							linksList[i]['thumbnail'] = item.thumbnail;
+							linksList[i]['link'] = megaLink;
+							linksList[i]['itemId'] = item.itemId;
+							linksList[i]['id'] = item.id;
+							linksList[i]['baseLink'] = item.link;
+							linksList[i]['reportLink'] = item.reportLink;
+							linksList[i]['title'] = 'Impossible de décoder ce fichier';
+							i+=1;
 							if (index+1 === totalLinks){
 								var links = __.sortBy(linksList, function(obj){ return parseInt(obj.title) });
 								$('#'+item.id).find('.showSpinner').hide();
@@ -309,6 +319,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
+								  console.log("print single:" + links)
 								  megaSearch.printSingleItem(links);
 							  }
 							}
@@ -330,6 +341,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
+								   console.log("print single:" + links)
 								  megaSearch.printSingleItem(links);
 							  }
 							}
@@ -354,6 +366,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 						  megaSearch.printMultiItem(links);
 						  $('#sublist_'+item.id).parent().parent().show();
 					  } else {
+						  console.log("print single:" + links)
 						  megaSearch.printSingleItem(links);
 					  }
 					}
@@ -395,6 +408,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 					  megaSearch.printMultiItem(links);
 					  $('#sublist_'+item.id).parent().parent().show();
 				  } else {
+					  console.log("print single:" + links)
 					  megaSearch.printSingleItem(links);
 				  }
 			  }
@@ -433,6 +447,7 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 			  megaSearch.printMultiItem(links);
 			  $('#sublist_'+item.id).parent().parent().show();
 		  } else {
+			  console.log("print single:" + links)
 			  megaSearch.printSingleItem(links);
 		  }
 		}
@@ -552,6 +567,7 @@ function getMegaFolderLink(file,i,index,total,linksList,item,loadInSub) {
             megaSearch.printMultiItem(links);
             $('#sublist_'+item.id).parent().parent().show();
         } else {
+			console.log("print single:" + links)
             megaSearch.printSingleItem(links);
         }
       }
@@ -644,6 +660,7 @@ function getMegacrypterLink(link,i,index,total,linksList,item,loadInSub) {
                     megaSearch.printMultiItem(linksList);
                     $('#sublist_'+item.id).parent().parent().show();
                 } else {
+					console.log("print single:" + links)
                     megaSearch.printSingleItem(linksList);
                 }
               }
