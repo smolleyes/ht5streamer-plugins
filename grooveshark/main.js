@@ -487,7 +487,7 @@ gshark.wait_songs = function() {
 }
 
 function get_more_songs(count) {
-	if (count === 5) {
+	if (count === 2) {
 		return;
 	}
 	setTimeout(function(){
