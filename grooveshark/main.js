@@ -34,7 +34,7 @@ gshark.init = function(gui,ht5) {
 				  "height": 800,
 				  "show": true
 				});
-		gshark.page.on('loaded', function(){
+		gshark.page.on('loading', function(){
 			console.log('gshark page loaded');
 			gshark.page.hide();
 			gs_win = gshark.page;
