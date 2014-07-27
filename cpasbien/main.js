@@ -23,7 +23,6 @@ var searchType = 'search';
 // init module
 cpb.init = function(gui,ht5) {
 	$('#pagination').hide();
-    $('#search').hide();
     cpb.gui = ht5;
     loadEngine();
     //play videos
@@ -161,14 +160,13 @@ cpb.search_type_changed = function() {
 	searchType = $("#searchTypes_select").val();
 	category = $("#categories_select").val();
 	if (searchType === 'navigation') {
-    if(cpb.categoriesLoaded === false) {
-        $.each(cpb.category_filters, function(key, value){
-							$('#categories_select').append('<option value="'+value+'">'+key+'</option>');
-        });
-        cpb.categoriesLoaded = true;
-        category = $("#categories_select").val();
-        $("#search p").empty().append(_("<p>Cpasbien %s category</p>",category));
-    }
+		if(cpb.categoriesLoaded === false) {
+			$.each(cpb.category_filters, function(key, value){
+				$('#categories_select').append('<option value="'+value+'">'+key+'</option>');
+			});
+			cpb.categoriesLoaded = true;
+			category = $("#categories_select").val();
+		}
 		$("#orderBy_select").hide();
 		$("#orderBy_label").hide();
 		$("#categories_label").show();
@@ -176,16 +174,14 @@ cpb.search_type_changed = function() {
 		$("#dateTypes_select").hide();
 		$("#searchFilters_select").hide();
 		$('#video_search_query').prop('disabled', true);
-    $("#search p").empty().append(_("<p>Cpasbien %s category</p>",category));
 	} else {
 		$("#dateTypes_select").hide();
-    $("#searchFilters_label").hide();
+		$("#searchFilters_label").hide();
 		$("#searchFilters_select").hide();
-    $("#categories_label").hide();
+		$("#categories_label").hide();
 		$("#categories_select").hide();
-    $("#orderBy_label").show();
+		$("#orderBy_label").show();
 		$("#orderBy_select").show();
-		$("#search p").empty().append(_("<p>Cpasbien %s section</p>",searchType));
 		$('#video_search_query').prop('disabled', false);
 	}
 }
@@ -219,7 +215,7 @@ function print_videos(videos) {
 	$('#loading').hide();
 	$("#loading p").empty().append(_("Loading videos..."));
 	$("#search").show();
-  $("#pagination").show();
+	$("#pagination").show();
 	
 	// init pagination if needed
   var totalItems = videos[0].totalItems;
@@ -231,9 +227,13 @@ function print_videos(videos) {
       if (searchType === 'search') {
         cpb.gui.init_pagination(totalItems,30,true,true,totalPages);
       } else {
-        cpb.gui.init_pagination(0,30,true,true,totalPages);
+        cpb.gui.init_pagination(0,30,true,true,0);
       }
       $("#pagination").show();
+  } else {
+	if (searchType !== 'search') {
+		cpb.gui.init_pagination(0,30,true,true,0);
+	}	
   }
     
     // load videos in the playlist
@@ -241,7 +241,7 @@ function print_videos(videos) {
 	$.each(videos[0].items,function(index,video) {
 		var html = '<li class="list-row" style="margin:0;padding:0;"> \
             <div class="mvthumb"> \
-						<img src="images/cpb.png" style="float:left;width:100px;margin-top:5px;" /> \
+						<img src="images/cpb.png" style="float:left;width:100px;height:100px;" /> \
 						</div> \
             <div style="margin: 0 0 0 105px;padding-top:10px;"> \
 							<a href="#" class="preload_cpb_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \

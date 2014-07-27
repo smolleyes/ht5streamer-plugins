@@ -862,7 +862,7 @@ megaSearch.printPageItems = function(items,totalPages) {
     $('#search').show();
     $('#items_container').show();
     if ((totalPages !== undefined)){
-        megaSearch.gui.init_pagination(0,40,true,true,totalPages);
+        megaSearch.gui.init_pagination(0,40,true,true,0);
         $("#pagination").show();
     }
     $.each(items,function(index,link){
