@@ -66,6 +66,12 @@ tpb.init = function(gui,ht5) {
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         tpb.gui.getTorrent(obj.torrent);
     });
+    
+    $(ht5.document).on('click','.download_pirateTorrentFile',function(e){
+        e.preventDefault();
+        console.log('download torrent clicked')
+        gui.Shell.openExternal($(this).attr("href"));
+    });
 }
 
 function loadEngine() {
@@ -229,6 +235,7 @@ function print_videos(videos) {
 							</div> \
 							<div style="margin-top:10px;"> \
 								<a class="open_in_browser" title="'+_("Open in %s",tpb.engine_name)+'" href="'+video.link+'"><img style="margin-top:8px;" src="images/export.png" /></a> \
+								<a href="'+video.magnet+'" title="'+ _("Download")+'" class="download_pirateTorrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a> \
 							</div> \
 						</div> \
 					</li>';
