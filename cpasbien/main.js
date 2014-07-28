@@ -50,6 +50,7 @@ cpb.init = function(gui,ht5) {
     
     $(ht5.document).on('click','.play_torrent',function(e){
         e.preventDefault();
+        console.log('play clicked')
         $('#fbxMsg').remove();
         $('.highlight').toggleClass('highlight','false');
         $(this).closest('li').toggleClass('highlight','true');
@@ -107,7 +108,6 @@ cpb.search = function (query, options,gui) {
     var query = query.replace(/ /g,'+');
     var url;
     var videos = {};
-    console.log(options)
     if(options.searchType === "search") {
       url='http://www.cpasbien.me/recherche/'+query+'/page-'+page+',trie-'+options.orderBy+'-d';
       $.get(url,function(res){
@@ -120,7 +120,8 @@ cpb.search = function (query, options,gui) {
             return;
         }
         try {
-          videos.totalItems = parseInt($('th.titre',res)[0].innerHTML.split(':')[1].trim().replace(' torrents',''));
+          videos.totalItems = parseInt($($('#recherche th.titre',res)[0]).text().split(':').pop().trim().split(' ')[0]);
+          console.log(videos.totalItems)
           analyseResults(videos,list);
         } catch(err) {
           videos.totalItems = list.length;
