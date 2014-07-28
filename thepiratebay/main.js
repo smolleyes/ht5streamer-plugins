@@ -27,12 +27,12 @@ tpb.init = function(gui,ht5) {
     tpb.gui = ht5;
     loadEngine();
     //play videos
-    $(ht5.document).on('click','.preload_cpb_torrent',function(e){
+    $(ht5.document).on('click','.preload_tpb_torrent',function(e){
         e.preventDefault();
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.link;
         var id = ((Math.random() * 1e6) | 0);
-        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_torrent"> \
+        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_tpb_torrent"> \
                 <img src="images/play-overlay.png" class="overlay" /> \
                 </a>');
         $.get(link, function(res) {
@@ -56,7 +56,7 @@ tpb.init = function(gui,ht5) {
         })
     });
     
-    $(ht5.document).on('click','.play_torrent',function(e){
+    $(ht5.document).on('click','.play_tpb_torrent',function(e){
         e.preventDefault();
         $('#fbxMsg').remove();
         $('.highlight').toggleClass('highlight','false');
@@ -228,7 +228,7 @@ function print_videos(videos) {
 							<img src="images/tpb.gif" style="float:left;width:100px;height:100px;" /> \
 						</div> \
 						<div style="margin: 0 0 0 105px;padding-top:10px;"> \
-							<a href="#" class="preload_cpb_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \
+							<a href="#" class="preload_tpb_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \
 							<div> \
 								<span>'+_('Uploaded: ')+''+video.date+'</span> <span style="position: absolute;left: 280px;">'+_('Size: ')+''+video.size+'</span> <br/>\
 								<span>Seeders: '+video.seeders+'</span> <span style="position: absolute;left: 280px;">leechers: '+video.seeders+'</span>\

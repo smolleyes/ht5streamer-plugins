@@ -31,7 +31,7 @@ cpb.init = function(gui,ht5) {
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.link;
         var id = obj.id;
-        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_torrent"> \
+        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_cpb_torrent"> \
                 <img src="images/play-overlay.png" class="overlay" /> \
                 </a>');
         $.get(link, function(res) {
@@ -50,7 +50,7 @@ cpb.init = function(gui,ht5) {
         })
     });
     
-    $(ht5.document).on('click','.play_torrent',function(e){
+    $(ht5.document).on('click','.play_cpb_torrent',function(e){
         e.preventDefault();
         console.log('play clicked')
         $('#fbxMsg').remove();
