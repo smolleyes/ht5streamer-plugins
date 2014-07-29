@@ -32,9 +32,11 @@ tpb.init = function(gui,ht5) {
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.link;
         var id = ((Math.random() * 1e6) | 0);
-        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_tpb_torrent"> \
+        if($('#tpb_play_'+id).length === 0) {
+			$(this).parent().parent().find('.mvthumb').append('<a href="#" id="tpb_play_'+id+'" data="" class="play_tpb_torrent"> \
                 <img src="images/play-overlay.png" class="overlay" /> \
                 </a>');
+        }
         $.get(link, function(res) {
             var title = $("#title", res).html();
             var info = $(".nfo", res).html();

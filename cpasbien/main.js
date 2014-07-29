@@ -31,9 +31,11 @@ cpb.init = function(gui,ht5) {
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.link;
         var id = obj.id;
-        $(this).parent().parent().find('.mvthumb').append('<a href="#" id="'+id+'" data="" class="play_cpb_torrent"> \
-                <img src="images/play-overlay.png" class="overlay" /> \
-                </a>');
+        if($('#cpb_play_'+id).length === 0) {
+			$(this).parent().parent().find('.mvthumb').append('<a href="#" id="cpb_play_'+id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" class="play_cpb_torrent"> \
+					<img src="images/play-overlay.png" class="overlay" /> \
+					</a>');
+        }
         $.get(link, function(res) {
             var table = $("div.torrent", res).html();
             var name = path.basename($('.download-torrent a',res)[0].href);
@@ -45,7 +47,9 @@ cpb.init = function(gui,ht5) {
             $('#'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
             $('.download-torrent').remove();
             $('#fbxMsg').hide().fadeIn(2000);
-            var n = '<a href="'+obj.torrent+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_torrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a>';
+            if($('#cpb_downlink_'+obj.id).length === 0) {
+				var n = '<a href="'+obj.torrent+'" id="cpb_downlink_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_torrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a>';
+			}
             $('#torrent_'+id).append(n);
         })
     });
