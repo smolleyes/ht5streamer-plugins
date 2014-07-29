@@ -52,7 +52,7 @@ tpb.init = function(gui,ht5) {
             $('#preloadTorrent').remove();
             $('.mejs-overlay-button').hide();
             $('.mejs-container').append('<div id="fbxMsg"><a href="" id="closePreview">X</a><div style="padding:20px;"><h2>'+title+'</h2><img src="'+img+'"style="margin:0 10px 10px 0;display:'+showImg+';float:left;width:150px;height:200px;" />'+info+'</div></div>');
-            $('#'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
+            $('#tpb_play_'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
             $('.download-torrent').remove();
             $('#fbxMsg').hide().fadeIn(2000);
         })

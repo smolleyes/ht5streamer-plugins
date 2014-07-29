@@ -32,7 +32,7 @@ cpb.init = function(gui,ht5) {
         var link = obj.link;
         var id = obj.id;
         if($('#cpb_play_'+id).length === 0) {
-			$(this).parent().parent().find('.mvthumb').append('<a href="#" id="cpb_play_'+id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" class="play_cpb_torrent"> \
+			$(this).parent().parent().find('.mvthumb').append('<a href="#" id="cpb_play_'+id+'" data="" class="play_cpb_torrent"> \
 					<img src="images/play-overlay.png" class="overlay" /> \
 					</a>');
         }
@@ -44,7 +44,7 @@ cpb.init = function(gui,ht5) {
             $('#preloadTorrent').remove();
             $('.mejs-overlay-button').hide();
             $('.mejs-container').append('<div id="fbxMsg"><a href="" id="closePreview">X</a>'+table+'</div>');
-            $('#'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
+            $('#cpb_play_'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
             $('.download-torrent').remove();
             $('#fbxMsg').hide().fadeIn(2000);
             if($('#cpb_downlink_'+obj.id).length === 0) {
