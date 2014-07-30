@@ -109,7 +109,7 @@ omgTorrent.defaultSearchType = 'search';
 omgTorrent.orderBy_filters = JSON.parse('{"'+_("Date")+'":"id","'+_("Seeds")+'":"seeders"}');
 omgTorrent.defaultOrderBy = 'id';
 // category filters and default entry
-omgTorrent.category_filters = JSON.parse('{"'+_("Movies")+'":"films","'+_("Series")+'":"series"}');
+omgTorrent.category_filters = JSON.parse('{"'+_("Movies")+'":"films"}');
 omgTorrent.defaultCategory = 'films';
 // others params
 omgTorrent.has_related = false;
@@ -255,7 +255,9 @@ function print_videos(videos) {
       }
       $("#pagination").show();
   } else {
-      
+      if (searchType !== 'search') {
+		omgTorrent.gui.init_pagination(0,30,true,true,0);
+	  }
   }
     
     // load videos in the playlist
