@@ -230,6 +230,7 @@ gshark.get_songs = function(more,position) {
 	var list = $('li.song-row',gs_win.window.document.body);
 	var count = list.length;
 	var olist = list;
+	console.log(olist)
 	$.each(list,function(index,song){
 		var itemjs = olist[index];
 		var song = {};
