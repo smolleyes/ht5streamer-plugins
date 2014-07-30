@@ -26,13 +26,14 @@ cpb.init = function(gui,ht5) {
     cpb.gui = ht5;
     loadEngine();
     //play videos
+    $(ht5.document).off('click','.preload_cpb_torrent');
     $(ht5.document).on('click','.preload_cpb_torrent',function(e){
         e.preventDefault();
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         var link = obj.link;
         var id = obj.id;
         if($('#cpb_play_'+id).length === 0) {
-			$(this).parent().parent().find('.mvthumb').append('<a href="#" id="cpb_play_'+id+'" data="" class="play_cpb_torrent"> \
+			$(this).parent().parent().find('.mvthumb').append('<a id="cpb_play_'+id+'" data="" class="play_cpb_torrent"> \
 					<img src="images/play-overlay.png" class="overlay" /> \
 					</a>');
         }
@@ -44,16 +45,17 @@ cpb.init = function(gui,ht5) {
             $('#preloadTorrent').remove();
             $('.mejs-overlay-button').hide();
             $('.mejs-container').append('<div id="fbxMsg"><a href="" id="closePreview">X</a>'+table+'</div>');
-            $('#cpb_play_'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
             $('.download-torrent').remove();
             $('#fbxMsg').hide().fadeIn(2000);
             if($('#cpb_downlink_'+obj.id).length === 0) {
+				$('#cpb_play_'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
 				var n = '<a href="'+obj.torrent+'" id="cpb_downlink_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_torrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a>';
+				$('#torrent_'+id).append(n);
 			}
-            $('#torrent_'+id).append(n);
         })
     });
     
+    $(ht5.document).off('click','.play_cpb_torrent');
     $(ht5.document).on('click','.play_cpb_torrent',function(e){
         e.preventDefault();
         console.log('play clicked')
@@ -66,6 +68,7 @@ cpb.init = function(gui,ht5) {
         cpb.gui.getTorrent(obj.torrent);
     });
     
+    $(ht5.document).off('click','.download_torrentFile');
     $(ht5.document).on('click','.download_torrentFile',function(e){
         e.preventDefault();
         console.log('download torrent clicked')

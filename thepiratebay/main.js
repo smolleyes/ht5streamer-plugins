@@ -27,6 +27,7 @@ tpb.init = function(gui,ht5) {
     tpb.gui = ht5;
     loadEngine();
     //play videos
+    $(ht5.document).off('click','.preload_tpb_torrent');
     $(ht5.document).on('click','.preload_tpb_torrent',function(e){
         e.preventDefault();
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
@@ -58,8 +59,10 @@ tpb.init = function(gui,ht5) {
         })
     });
     
+    $(ht5.document).off('click','.play_tpb_torrent');
     $(ht5.document).on('click','.play_tpb_torrent',function(e){
         e.preventDefault();
+        console.log('play clicked')
         $('#fbxMsg').remove();
         $('.highlight').toggleClass('highlight','false');
         $(this).closest('li').toggleClass('highlight','true');
@@ -69,6 +72,7 @@ tpb.init = function(gui,ht5) {
         tpb.gui.getTorrent(obj.torrent);
     });
     
+    $(ht5.document).off('click','.download_pirateTorrentFile');
     $(ht5.document).on('click','.download_pirateTorrentFile',function(e){
         e.preventDefault();
         console.log('download torrent clicked')

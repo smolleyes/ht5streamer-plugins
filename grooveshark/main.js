@@ -51,6 +51,7 @@ gshark.init = function(gui,ht5) {
 	loadEngine();
 	
 	// gshark
+	$(ht5.document).off('click','.preload');
 	$(ht5.document).on('click','.preload',function(){
 		$(".mejs-overlay").show();
 		$(".mejs-layer").show();
@@ -95,16 +96,19 @@ gshark.init = function(gui,ht5) {
 		});
 	});
 	
+	$(ht5.document).off('click','#load_more_gshark');
 	$(ht5.document).on('click','#load_more_gshark',function(){
 		get_more_songs(0);
 	});
 	
+	$(ht5.document).off('click','.load_album');
 	$(ht5.document).on('click','.load_album',function(){
 		var album = JSON.parse(decodeURIComponent($(this).attr("data")));
 		gshark.ignoreSection = true;
 		gshark.page.window.location.href = album.link;
 	});
 	
+	$(ht5.document).off('click','.load_playlist');
 	$(ht5.document).on('click','.load_playlist',function(){
 		var playlist = JSON.parse(decodeURIComponent($(this).attr("data")));
 		gshark.ignoreSection = true;

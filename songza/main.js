@@ -26,6 +26,7 @@ songza.init = function(gui,ht5) {
     loadEngine();
     $("#loading p").empty().append(_("Loading stations..."));
     //play videos
+    $(ht5.document).off('click','.load_genre');
     $(ht5.document).on('click','.load_genre',function(e){
 		e.preventDefault();
 		$('#loading').show();
@@ -36,6 +37,7 @@ songza.init = function(gui,ht5) {
 		songza.load_genre_stations(station);
 	});
 	
+	$(ht5.document).off('click','.load_station');
 	$(ht5.document).on('click','.load_station',function(e){
 		e.preventDefault();
 		$('#loading').show();
@@ -49,6 +51,7 @@ songza.init = function(gui,ht5) {
 		songza.load_next(station.id);
 	});
 	
+	$(ht5.document).off('click','.load_song');
 	$(ht5.document).on('click','.load_song',function(e){
 		e.preventDefault();
 		$('.highlight').toggleClass('highlight','false');

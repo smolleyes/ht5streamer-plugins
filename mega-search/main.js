@@ -103,7 +103,7 @@ megaSearch.init = function(gui,ht5,notif) {
   // load engine
 	loadEngine();
 	
-  
+  $(ht5.document).off('click','.loadItem');
   $(ht5.document).on('click','.loadItem',function(e){
     e.preventDefault();
     try {
@@ -230,9 +230,10 @@ megaSearch.init = function(gui,ht5,notif) {
     }
   });
         
-  
+  $(ht5.document).off('click','.play');
   $(ht5.document).on('click','.play',function(e){
     e.preventDefault();
+    console.log('play clicked')
     $(".mejs-overlay").show();
 		$(".mejs-layer").show();
 		$(".mejs-overlay-play").hide();
@@ -252,6 +253,7 @@ megaSearch.init = function(gui,ht5,notif) {
     megaSearch.gui.startPlay(stream);
   });
   
+  $(ht5.document).off('click','.download_megafile');
   $(ht5.document).on('click','.download_megafile',function(e){
     e.preventDefault();
 		$('.highlight').toggleClass('highlight','false');
