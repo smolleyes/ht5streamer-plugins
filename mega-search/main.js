@@ -1080,6 +1080,8 @@ megaSearch.printMultiItem = function(items) {
     } catch(err) {
         console.log(err,list);
     }
+    $('#sublist_'+list[0].id).parent().parent().find('a').first().empty().html(_("Links"));
+    $('#sublist_'+list[0].id).empty();
     $.each(list,function(index,elem) {
             if (index === 0) {
               var string = $('#sublist_'+elem.id).parent().parent().find('a').first().text();
