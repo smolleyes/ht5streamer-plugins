@@ -691,7 +691,7 @@ if ($.inArray(megaSearch.gui.settings.locale, localeList) >-1) {
 
 // menus needed by the module and menu(s) loaded by default
 megaSearch.menuEntries = ["searchTypes","searchFilters"];
-megaSearch.defaultMenus = ["searchTypes","categories","searchFilters"];
+megaSearch.defaultMenus = ["searchTypes","categories",];
 // searchTypes menus and default entry
 megaSearch.searchTypes = JSON.parse('{"'+_("Search")+'":"search","'+_("Browse")+'":"browse"}');
 megaSearch.defaultSearchType = 'search';
@@ -774,24 +774,19 @@ megaSearch.search = function(query,options) {
    });
   } else {
     if (query !== '') {
-        if (options.searchFilter === 'all') {
-        var param = {advanced: 1, search: query, searchtype: 2, userspec: '*',sort: 'relevance|desc',show_complete: 1,minage:0,maxage:9999,acctopic:'',topic_search:1,match_mode:'smart'};
-      } else {
-        var param = JSON.parse('{"search":"'+query+'","searchtype":"2","match_mode":"smart","search_selection":"thisbrd","userspec":"","show_complete":"1","subject_only":"0","minage":"0","maxage":"9999","sort":"relevance","acttopic":"0","actbrd":"0","brd['+options.searchFilter+']":"'+options.searchFilter+'"}')
-      }
         var method = NaN;
         $('#loading').show();
         $('#search').hide();
         var link;
         if (options.currentPage === 1) {
-          link = "http://forum.mega-search.ws/index.php?action=search2";
-          var method =  $.post;
+          link = "http://forum.mega-search.ws/index.php?action=search2&sort=relevance%7Cdesc&brd=31.0%2C74.0%2C37.0%2C38.0%2C95.0%2C96.0%2C40.0%2C41.0%2C&dates=&dates2=&subject_only=0&show_complete=1&search3=Genre+%3A_&genre=dvdrip+fr&esp=+&userspec=&search=%22Genre+%3A_%22+"+query.replace(/ /g,'+')+"+&show_complete=1&x=0&y=0";
+          var method =  $.get;
         } else {
           megaSearch.currPageStart = (options.currentPage - 1) * 30;
-          link = "http://forum.mega-search.ws/index.php?action=search2;"+megaSearch.params+';start='+megaSearch.currPageStart;
+          link = "http://forum.mega-search.ws/index.php?action=search2&sort=relevance%7Cdesc&brd=31.0%2C74.0%2C37.0%2C38.0%2C95.0%2C96.0%2C40.0%2C41.0%2C&dates=&dates2=&subject_only=0&show_complete=1&search3=Genre+%3A_&genre=dvdrip+fr&esp=+&userspec=&search=%22Genre+%3A_%22+"+query.replace(/ /g,'+')+"+&show_complete=1&x=0&y=0&start="+megaSearch.currPageStart;
           var method = $.get;
         }
-        method(link, param).done(function( res ) {
+        method(link).done(function( res ) {
           //check solo page or multi
           var listMain = $('.topic_details',res);
           if (options.currentPage === 1) {
@@ -1000,25 +995,10 @@ megaSearch.search_type_changed = function() {
         }
         $('#categories_label').show();
         $('#categories_select').show();
-    } else {
-      if ($('#searchFilters_select option').length === 0) {
-        $('#searchFilters_select').empty();
-        $.get('http://forum.mega-search.ws/index.php?action=search',function(res) { 
-         var list = $('li.board',res);
-         $('#searchFilters_select').append('<option value="all">'+_("All category")+'</option>');
-         $.each(list,function(index,text){
-           var title = $(this).find("label").text();
-           var name = $(this).find('input').attr('name');
-           var value = $(this).find('input').attr('value');
-           $('#searchFilters_select').append('<option value="'+value+'">'+title+'</option>');
-         });
-       });
-      }
+    } else { 
        $("#search_results").empty().append("<p>"+_("Searching mode...", name)+"</p>");
        $('#video_search_query').prop('disabled', false);
        $('#video_search_btn').prop('disabled', false);
-       $('#searchFilters_label').show();
-       $('#searchFilters_select').show();
     }
 }
 
