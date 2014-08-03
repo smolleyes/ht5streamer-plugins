@@ -22,11 +22,12 @@ var __ = require('underscore');
 var has_more = true;
 var gs_win;
 var old_count = 0;
-var sectionsList = new Array('Japanimation','Mangas','Dramas','VF','VO/VOST','Album Complet','OST / BO','Singles','Compilation Musical','VO/VOSTFR','Albums','Compilations Musicales','OST','Section Adulte (+18)','Films Adulte','Livres Adulte','BD Adulte','Films DVDRip & BDRip','Films VO & VOSTFR','Films TS, R5, Cam, DVDScreen','Films HD 720p, 1080p, 3D','Films HD 720p, 1080p, 3D.','Séries TV','Dessins animés','Documentaires, Spectacles, Concerts, Émissions TV, Sports','Musique','Musique HQ / Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
+var sectionsList = new Array('Japanimation','Mangas','Dramas','VF','VO/VOST','Album Complet','OST / BO','Singles','Compilation Musical','VO/VOSTFR','Albums','Compilations Musicales','OST','Section Adulte (+18)','Films Adulte','Livres Adulte','BD Adulte','Films DVDRip & BDRip','Films VO & VOSTFR','Films TS, R5, Cam, DVDScreen','BluRay 720p, 1080p','Films HD 720p, 1080p, 3D','Films HD 720p, 1080p, 3D.','Séries TV','Dessins animés','Documentaires, Spectacles, Concerts, Émissions TV, Sports','Musique','Musique HQ / Flac','Clips Musicaux','Manga','Drama','Section ADULTE','Romans, Livres','Presse, Magazine','Bande dessinée', 'Romans','Livres','Livres Audio');
 var scannedLinks = 0;
 var totalFiles = 0;
 var folderList = [];
 var linksList = [];
+var boardList=[];
 var maCleDeCryptage = "Sr95tYU1";
 
 megaSearch.init = function(gui,ht5,notif) {
@@ -702,6 +703,7 @@ megaSearch.defaultSearchType = 'search';
 megaSearch.loadMenus = function() {
     var sublist = [];
     var i = 0;
+    boardList = new Array();
     scanSublist = false;
     $.get('http://forum.mega-search.ws/index.php',function(res){
       $('#categories_select').empty();
@@ -717,6 +719,8 @@ megaSearch.loadMenus = function() {
         } else {
           if(in_array(name,sectionsList) !== -1){
             $('#categories_select').append('<option value="'+name+'::'+href+'">'+name+'</option>');
+			var bid = href.match(/board=(.*?)\./).pop();
+			boardList.push("&brd%5B"+bid+"%5D="+bid);
           }
         }
         if (index+1 === sections.length){
@@ -733,6 +737,8 @@ megaSearch.loadMenus = function() {
                 var subhref = $(this).attr('href');
                 if(subname !== '') {
                   $('#categories_select').append('<option value="'+subname+'::'+subhref+'">'+subname+'</option>');
+				  var bid = href.match(/board=(.*?)\./).pop();
+				  boardList.push("&brd%5B"+bid+"%5D="+bid);
                 }
                 //if (l.length === index+1) {
                     //megaSearch.search_type_changed();
@@ -778,14 +784,16 @@ megaSearch.search = function(query,options) {
         $('#loading').show();
         $('#search').hide();
         var link;
+        var blist = __.uniq(boardList).toString().replace(/,/g,'');
         if (options.currentPage === 1) {
-          link = "http://forum.mega-search.ws/index.php?action=search2&sort=relevance%7Cdesc&brd=31.0%2C74.0%2C37.0%2C38.0%2C95.0%2C96.0%2C40.0%2C41.0%2C&dates=&dates2=&subject_only=0&show_complete=1&search3=Genre+%3A_&genre=dvdrip+fr&esp=+&userspec=&search=%22Genre+%3A_%22+"+query.replace(/ /g,'+')+"+&show_complete=1&x=0&y=0";
+          link = "http://forum.mega-search.ws/index.php?action=search2&search=%22Genre+%3A%22+"+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist;
           var method =  $.get;
         } else {
           megaSearch.currPageStart = (options.currentPage - 1) * 30;
-          link = "http://forum.mega-search.ws/index.php?action=search2&sort=relevance%7Cdesc&brd=31.0%2C74.0%2C37.0%2C38.0%2C95.0%2C96.0%2C40.0%2C41.0%2C&dates=&dates2=&subject_only=0&show_complete=1&search3=Genre+%3A_&genre=dvdrip+fr&esp=+&userspec=&search=%22Genre+%3A_%22+"+query.replace(/ /g,'+')+"+&show_complete=1&x=0&y=0&start="+megaSearch.currPageStart;
+          link = "http://forum.mega-search.ws/index.php?action=search2&search=%22Genre+%3A%22+"+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist+"&start="+megaSearch.currPageStart;
           var method = $.get;
         }
+        console.log(link);
         method(link).done(function( res ) {
           //check solo page or multi
           var listMain = $('.topic_details',res);
@@ -847,6 +855,7 @@ megaSearch.loadSearchItems = function(listMain) {
       item.title = $($('h5 a',data)[1]).text();
       var section = $($('h5 a',data)[0]).text();
       item.link = $($('h5 a',data)[1]).attr('href').match(/(.*?).msg/)[0].replace('.msg','');
+      console.log(section)
       if (in_array(section,sectionsList) !== -1) {
           megaSearch.addContainer(item);
       }
