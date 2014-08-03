@@ -786,11 +786,11 @@ megaSearch.search = function(query,options) {
         var link;
         var blist = __.uniq(boardList).toString().replace(/,/g,'');
         if (options.currentPage === 1) {
-          link = "http://forum.mega-search.ws/index.php?action=search2&search=%22Genre+%3A%22+"+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist;
+          link = "http://forum.mega-search.ws/index.php?action=search2&search="+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist;
           var method =  $.get;
         } else {
           megaSearch.currPageStart = (options.currentPage - 1) * 30;
-          link = "http://forum.mega-search.ws/index.php?action=search2&search=%22Genre+%3A%22+"+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist+"&start="+megaSearch.currPageStart;
+          link = "http://forum.mega-search.ws/index.php?action=search2&search="+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist+"&start="+megaSearch.currPageStart;
           var method = $.get;
         }
         console.log(link);
