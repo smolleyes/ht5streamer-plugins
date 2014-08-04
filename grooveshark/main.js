@@ -51,19 +51,21 @@ gshark.init = function(gui,ht5) {
 	loadEngine();
 	
 	// gshark
-	$(ht5.document).off('click','.preload');
-	$(ht5.document).on('click','.preload',function(){
+	$(ht5.document).off('click','.preload_gs');
+	$(ht5.document).on('click','.preload_gs',function(){
 		$(".mejs-overlay").show();
 		$(".mejs-layer").show();
 		$(".mejs-overlay-play").hide();
 		$(".mejs-overlay-loading").show();
+		var origins = $(this).attr("data");
 		var song = JSON.parse(decodeURIComponent($(this).attr("data")));
 		var id = song.id;
 		$('#gshark_item_'+id).empty().append("<p> Loading song, please wait...</p>")
 		$('.highlight').toggleClass('highlight','false');
 		GS.Grooveshark.getStreamingUrl(id, function(err, streamUrl) {
+			console.log("play: " + streamUrl)
 			$("#cover").remove();
-			$('#gshark_item_'+id).empty().append('<div class="resolutions_container"><a class="video_link" style="display:none;" href="'+streamUrl+'" alt="360p"><span></span></a><a href="'+streamUrl+'" alt="'+song.author+' - '+song.title+'.mp3::'+id+'" title="Download" class="download_file"><img src="images/down_arrow.png" width="16" height="16" />Download mp3</a></div>');
+			$('#gshark_item_'+id).empty().append('<div class="resolutions_container"><a class="video_link" style="display:none;" href="'+streamUrl+'" alt="360p"><span></span></a><a class="download_gs" href="#" data="'+origins+'" title="Download"><img src="images/down_arrow.png" width="16" height="16" />Download mp3</a></div>');
 			var media= {};
 			media.link = streamUrl;
 			media.title = song.author +' - '+song.title;
@@ -97,22 +99,40 @@ gshark.init = function(gui,ht5) {
 	});
 	
 	$(ht5.document).off('click','#load_more_gshark');
-	$(ht5.document).on('click','#load_more_gshark',function(){
+	$(ht5.document).on('click','#load_more_gshark',function(e){
+		e.preventDefault();
 		get_more_songs(0);
 	});
 	
 	$(ht5.document).off('click','.load_album');
-	$(ht5.document).on('click','.load_album',function(){
+	$(ht5.document).on('click','.load_album',function(e){
+		e.preventDefault();
 		var album = JSON.parse(decodeURIComponent($(this).attr("data")));
 		gshark.ignoreSection = true;
 		gshark.page.window.location.href = album.link;
 	});
 	
 	$(ht5.document).off('click','.load_playlist');
-	$(ht5.document).on('click','.load_playlist',function(){
+	$(ht5.document).on('click','.load_playlist',function(e){
+		e.preventDefault();
 		var playlist = JSON.parse(decodeURIComponent($(this).attr("data")));
 		gshark.ignoreSection = true;
 		gshark.page.window.location.href = playlist.link;
+	});
+	
+	$(ht5.document).off('click','.download_gs');
+	$(ht5.document).on('click','.download_gs',function(e){
+		e.preventDefault();
+		var song = JSON.parse(decodeURIComponent($(this).attr("data")));
+		GS.Grooveshark.getStreamingUrl(song.id, function(err, streamUrl) {
+			var title = song.author +' - '+song.title+'.mp3';
+			var id = song.id;
+			console.log('downloading : '+title)
+			gshark.gui.downloadFile(streamUrl,title,id,false);
+			if ($('.tabActiveHeader').attr('id') !== 'tabHeader_4') {
+				$("#tabHeader_4").click();
+			}
+		});
 	});
 }
 
@@ -248,7 +268,7 @@ gshark.get_songs = function(more,position) {
 								<span style="display:none;" class="video_length">'+song.duration+'</span> \
 								<div> \
 									<p> \
-										<a class="preload" data="'+encodeURIComponent(JSON.stringify(song))+'"> \
+										<a class="preload_gs" data="'+encodeURIComponent(JSON.stringify(song))+'"> \
 											<b>'+song.title+'</b> \
 										</a> \
 									</p> \
