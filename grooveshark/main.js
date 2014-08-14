@@ -69,6 +69,7 @@ gshark.init = function(gui,ht5) {
 			var media= {};
 			media.link = streamUrl;
 			media.title = song.author +' - '+song.title;
+			media.type='object.item.audioItem.musicTrack';
 			gshark.gui.startPlay(media);
 			$('#gshark_item_'+song.id).closest('.youtube_item').toggleClass('highlight','true');
 			var p = $('.highlight').position().top;

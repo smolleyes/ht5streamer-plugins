@@ -553,7 +553,7 @@ function getFolderLinks(megaLink,item,linksList,totalLinks,i,loadInSub) {
 }
 
 function getMegaFolderLink(file,i,index,total,linksList,item,loadInSub) {
-    $.post('https://eu.api.mega.co.nz/cs?id=1&n='+file.folderId+'','[{"a":"g","g":1,"ssl":1,"n":"'+file.id+'"}]').done(function(res) {
+    $.post('https://eu.api.mega.co.nz/cs?id=1&n='+file.folderId+'','[{"a":"g","g":1,"ssl":0,"n":"'+file.id+'"}]').done(function(res) {
       linksList[i] = {};
       linksList[i]['title'] = file.name.replace(',c','');
       linksList[i]['thumbnail'] = item.thumbnail;

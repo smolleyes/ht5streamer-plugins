@@ -58,6 +58,7 @@ songza.init = function(gui,ht5) {
 		var song = JSON.parse(decodeURIComponent($(this).attr("data")));
 		var media= {};
 		media.link = song.listen_url;
+		media.type='object.item.audioItem.musicTrack';
 		song.title = song.song.artist.name +' - '+ song.song.title;
 		songza.gui.startPlay(media);
 		$('#songza_item_'+song.song.id).closest('.youtube_item').toggleClass('highlight','true');
@@ -353,6 +354,7 @@ songza.load_next = function(id) {
 		var media= {};
 		media.link = res.listen_url;
 		media.title = res.song.artist.name +' - '+ res.song.title;
+		media.type='object.item.audioItem.musicTrack';
 		songza.gui.startPlay(media);
 		$('#songza_item_'+res.song.id).closest('.youtube_item').toggleClass('highlight','true');
 		var p = $('.highlight').position().top;
