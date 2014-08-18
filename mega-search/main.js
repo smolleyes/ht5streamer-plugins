@@ -234,7 +234,6 @@ megaSearch.init = function(gui,ht5,notif) {
   $(ht5.document).off('click','.play');
   $(ht5.document).on('click','.play',function(e){
     e.preventDefault();
-    console.log('play clicked')
     $(".mejs-overlay").show();
 		$(".mejs-layer").show();
 		$(".mejs-overlay-play").hide();
@@ -302,7 +301,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 			} else {
 				if ((titre === '') || (titre == undefined) || (titre === "titre inconnu...")) {
 					mega.file(megaLink).loadAttributes(function(err, file) {
-						console.log(file)
 						if(err || file === undefined) {
 							linksList[i] = {};
 							linksList[i]['thumbnail'] = item.thumbnail;
@@ -318,11 +316,9 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 								$('#'+item.id).find('.showSpinner').hide();
 								$('#toggle_'+item.id).addClass('loadItem');
 							  if (totalLinks.length > 1 || loadInSub) {
-								  console.log("print multi:" + links)
 								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
-								  console.log("print single:" + links)
 								  megaSearch.printSingleItem(links);
 							  }
 							}
@@ -344,7 +340,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 								  megaSearch.printMultiItem(links);
 								  $('#sublist_'+item.id).parent().parent().show();
 							  } else {
-								   console.log("print single:" + links)
 								  megaSearch.printSingleItem(links);
 							  }
 							}
@@ -365,11 +360,9 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 						$('#'+item.id).find('.showSpinner').hide();
 						$('#toggle_'+item.id).addClass('loadItem');
 					  if (totalLinks.length > 1 || loadInSub) {
-						  console.log("print multi:" + links)
 						  megaSearch.printMultiItem(links);
 						  $('#sublist_'+item.id).parent().parent().show();
 					  } else {
-						  console.log("print single:" + links)
 						  megaSearch.printSingleItem(links);
 					  }
 					}
@@ -379,7 +372,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 			
       //lien vd
       } else if (link.indexOf('http://v.gd') !== -1) {
-        console.log('Lien v.gd ' + link);
         var titre = $(this).prev().text();
         if ((titre == undefined) || (titre == '')) {
             titre = item.title;
@@ -411,7 +403,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 					  megaSearch.printMultiItem(links);
 					  $('#sublist_'+item.id).parent().parent().show();
 				  } else {
-					  console.log("print single:" + links)
 					  megaSearch.printSingleItem(links);
 				  }
 			  }
@@ -419,7 +410,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
         });
       //lien megacrypter
       } else if (link.indexOf('http://megacrypter.com') !== -1) {
-        console.log('Lien megacrypter ' + link);
         getMegacrypterInfos(link,i,index,totalLinks,linksList,item,loadInSub);
         i+=1;
       //lien mega.co
@@ -450,7 +440,6 @@ function loadPageLinks(list,item,totalLinks,loadInSub) {
 			  megaSearch.printMultiItem(links);
 			  $('#sublist_'+item.id).parent().parent().show();
 		  } else {
-			  console.log("print single:" + links)
 			  megaSearch.printSingleItem(links);
 		  }
 		}
@@ -570,7 +559,6 @@ function getMegaFolderLink(file,i,index,total,linksList,item,loadInSub) {
             megaSearch.printMultiItem(links);
             $('#sublist_'+item.id).parent().parent().show();
         } else {
-			console.log("print single:" + links)
             megaSearch.printSingleItem(links);
         }
       }
@@ -663,7 +651,6 @@ function getMegacrypterLink(link,i,index,total,linksList,item,loadInSub) {
                     megaSearch.printMultiItem(linksList);
                     $('#sublist_'+item.id).parent().parent().show();
                 } else {
-					console.log("print single:" + links)
                     megaSearch.printSingleItem(linksList);
                 }
               }
@@ -793,7 +780,6 @@ megaSearch.search = function(query,options) {
           link = "http://forum.mega-search.ws/index.php?action=search2&search="+query.replace(/ /g,'+')+"&searchtype=1&match_mode=any&search_selection=entireforum&userspec=*&submit=R%C3%A9viser+la+recherche&searchtype=0&userspec=&show_complete=0&subject_only=0&minage=0&maxage=9999&sort=relevance&acttopic=0&actbrd=0"+blist+"&start="+megaSearch.currPageStart;
           var method = $.get;
         }
-        console.log(link);
         method(link).done(function( res ) {
           //check solo page or multi
           var listMain = $('.topic_details',res);
@@ -855,7 +841,6 @@ megaSearch.loadSearchItems = function(listMain) {
       item.title = $($('h5 a',data)[1]).text();
       var section = $($('h5 a',data)[0]).text();
       item.link = $($('h5 a',data)[1]).attr('href').match(/(.*?).msg/)[0].replace('.msg','');
-      console.log(section)
       if (in_array(section,sectionsList) !== -1) {
           megaSearch.addContainer(item);
       }
