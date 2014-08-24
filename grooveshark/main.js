@@ -443,19 +443,19 @@ gshark.wait_songs = function() {
 					if ($("#search-results-songs p.search-results-notfound",doc).length === 1) {
 						gshark.songsCount = 0;
 					} else {
-						gshark.songsCount = $($('li.list-row-more',doc)[0]).text().split('songs')[1].replace(' more','')
+						gshark.songsCount = $($('li.list-row-more',doc)[0]).text().match(/\d+/)[0]
 					}
 					// albums
 					if ($("#search-results-albums p.search-results-notfound",doc).length === 1) {
 						gshark.albumsCount = 0;
 					} else {
-						gshark.albumsCount = $($('li.list-row-more',doc)[1]).text().split('albums')[1].replace(' more','')
+						gshark.albumsCount = $($('li.list-row-more',doc)[1]).text().match(/\d+/)[0]
 					}
 					// playlists
 					if ($("#search-results-playlists p.search-results-notfound",doc).length === 1) {
 						gshark.playlistsCount = 0;
 					} else {
-						gshark.playlistsCount = $($('li.list-row-more',doc)[2]).text().split('playlists')[1].replace(' more','')
+						gshark.playlistsCount = $($('li.list-row-more',doc)[2]).text().match(/\d+/)[0]
 					}
 					console.log("page loaded "+gshark);
 					// once loaded go to selected section
