@@ -197,7 +197,7 @@ gshark.search = function(query,options) {
 			
 gshark.load_more = function(more) {
 	// hide load button of total results reached
-	gs_win.window.scrollTo(0,gs_win.window.document.height - 50);
+	gs_win.window.scrollTo(0,10000);
 	if ($('.list-row-release-to-load',gs_win.window.document.body).length > 0) {
 		if (more === true) {
 			gshark.add_to_playlist(true);
