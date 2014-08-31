@@ -51,6 +51,10 @@ cpb.init = function(gui,ht5) {
 				$('#cpb_play_'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
 				var n = '<a href="'+obj.torrent+'" id="cpb_downlink_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_torrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a>';
 				$('#torrent_'+id).append(n);
+				if(cpb.gui.freeboxAvailable) {
+					var r = '<a href="'+obj.torrent+'" id="cpb_downlinkFbx_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_torrentFile_fbx" style="margin-left:10px;"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Télécharger avec freebox")+'</span></a>';
+					$('#torrent_'+id).append(r);
+				}
 			}
         })
     });
@@ -74,6 +78,14 @@ cpb.init = function(gui,ht5) {
         console.log('download torrent clicked')
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         cpb.gui.downloadFile(obj.torrent,obj.title,obj.id,true)
+    });
+     
+    $(ht5.document).off('click','.download_torrentFile_fbx');
+    $(ht5.document).on('click','.download_torrentFile_fbx',function(e){
+        e.preventDefault();
+        console.log('download torrent clicked')
+        var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
+        cpb.gui.addFreeboxDownload(obj.torrent);
     });
 }
 

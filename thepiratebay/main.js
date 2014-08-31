@@ -38,6 +38,12 @@ tpb.init = function(gui,ht5) {
                 <img src="images/play-overlay.png" class="overlay" /> \
                 </a>');
         }
+        if($('#tpb_downlink_'+obj.id).length === 0) {
+			if(tpb.gui.freeboxAvailable) {
+				var r = '<a href="'+obj.magnet+'" id="tpb_downlink_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_pirateTorrentFile_fbx" style="margin-left:10px;"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Télécharger avec freebox")+'</span></a>';
+				$('#torrent_'+obj.id).append(r);
+			}
+		}
         $.get(link, function(res) {
             var title = $("#title", res).html();
             var info = $(".nfo", res).html();
@@ -77,6 +83,13 @@ tpb.init = function(gui,ht5) {
         e.preventDefault();
         console.log('download torrent clicked')
         gui.Shell.openExternal($(this).attr("href"));
+    });
+    
+    $(ht5.document).off('click','.download_pirateTorrentFile_fbx');
+    $(ht5.document).on('click','.download_pirateTorrentFile_fbx',function(e){
+        e.preventDefault();
+        console.log('download torrent clicked')
+        tpb.gui.addFreeboxDownload($(this).attr("href"));
     });
 }
 
@@ -229,6 +242,7 @@ function print_videos(videos) {
     // load videos in the playlist
 	$('#items_container').empty().append('<ul id="tpb_cont" class="list" style="margin:0;"></ul>').show();
 	$.each(videos[0].items,function(index,video) {
+		video.id = ((Math.random() * 1e6) | 0);
 		var html = '<li class="list-row" style="margin:0;padding:0;"> \
 						<div class="mvthumb"> \
 							<img src="images/tpb.gif" style="float:left;width:100px;height:100px;" /> \
@@ -239,7 +253,7 @@ function print_videos(videos) {
 								<span>'+_('Uploaded: ')+''+video.date+'</span> <span style="position: absolute;left: 280px;">'+_('Size: ')+''+video.size+'</span> <br/>\
 								<span>Seeders: '+video.seeders+'</span> <span style="position: absolute;left: 280px;">leechers: '+video.seeders+'</span>\
 							</div> \
-							<div style="margin-top:10px;"> \
+							<div style="margin-top:10px;" id="torrent_'+video.id+'"> \
 								<a class="open_in_browser" title="'+_("Open in %s",tpb.engine_name)+'" href="'+video.link+'"><img style="margin-top:8px;" src="images/export.png" /></a> \
 								<a href="'+video.magnet+'" title="'+ _("Download")+'" class="download_pirateTorrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a> \
 							</div> \

@@ -53,6 +53,10 @@ omgTorrent.init = function(gui,ht5) {
 				$('#omg_play_'+id).attr('data',encodeURIComponent(JSON.stringify(obj)));
 				var n = '<a href="'+obj.torrent+'" id="omg_downlink_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_omgTorrentFile"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Download")+'</span></a>';
 				$('#torrent_'+id).append(n);
+				if(omgTorrent.gui.freeboxAvailable) {
+					var r = '<a href="'+obj.torrent+'" id="omg_downlink_'+obj.id+'" data="'+encodeURIComponent(JSON.stringify(obj))+'" title="'+ _("Download")+'" class="download_omgTorrentFile_fbx" style="margin-left:10px;"><img src="images/down_arrow.png" width="16" height="16" /><span class="downloadText">'+_("Télécharger avec freebox")+'</span></a>';
+					$('#torrent_'+id).append(r);
+				}
 			}
         }).error(function(err){
 			alert('can t load page '+obj.torrent)
@@ -78,6 +82,14 @@ omgTorrent.init = function(gui,ht5) {
         console.log('download torrent clicked')
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
         omgTorrent.gui.downloadFile(obj.torrent,obj.title,obj.id,true)
+    });
+    
+    $(ht5.document).off('click','.download_omgTorrentFile_fbx');
+    $(ht5.document).on('click','.download_omgTorrentFile_fbx',function(e){
+        e.preventDefault();
+        console.log('download torrent clicked')
+        var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
+        omgTorrent.gui.addFreeboxDownload(obj.torrent);
     });
     
 }

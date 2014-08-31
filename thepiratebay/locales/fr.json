@@ -9,17 +9,15 @@
 	"<p>thepiratebay %s section</p>": "<p>thepiratebay section %s</p>",
 	"Loading videos...": "Chargement des vidéos...",
 	"download": "Télécharger",
-	"Open in %s": "Ouvrir dans %",
+	"Open in %s": "Ouvrir dans %s",
 	"Loading categories, please wait...": "Chargement des catégories, merci de patienter...",
 	"Movies": "Films",
 	"Search": "Recherche",
 	"Seeds": "Sources",
 	"results found...": "résultats trouvés...",
 	"Artist: ": "Artist: ",
-	"Open in %s": "Ouvrir dans %s",
 	"No results found...": "Aucun résultat trouvé...",
 	"<p>thepiratebay %s category</p>": "<p>thepiratebay catégorie %s</p>",
-	"<p>thepiratebay %s section</p>": "<p>thepiratebay section %s</p>",
 	"Navigation": "Navigation",
 	"Series": "Séries",
 	"links found": "liens trouvés",
@@ -37,6 +35,7 @@
 	"Leeches asc": "Leeches asc",
 	"<p>Engine Thepiratebay ready...!</p>": "<p>Engine Thepiratebay ready...!</p>",
 	"%s results found for %s": "%s résultats trouvés pour %s",
-	"Size: " : "Taille: ",
-	"Uploaded: " : "Uploadé: "
+	"Size: ": "Taille: ",
+	"Uploaded: ": "Uploadé: ",
+	"Télécharger avec freebox": "Télécharger avec freebox"
 }
