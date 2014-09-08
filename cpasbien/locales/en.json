@@ -7,5 +7,8 @@
 	"Series": "Series",
 	"<p>Cpasbien %s section</p>": "<p>Cpasbien %s section</p>",
 	"<p>Cpasbien %s category</p>": "<p>Cpasbien %s category</p>",
-	"Loading videos...": "Loading videos..."
+	"Loading videos...": "Loading videos...",
+	"No results found...": "No results found...",
+	"Download": "Download",
+	"Télécharger avec freebox": "Télécharger avec freebox"
 }
