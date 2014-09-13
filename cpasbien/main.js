@@ -40,7 +40,7 @@ cpb.init = function(gui,ht5) {
         $.get(link, function(res) {
             var table = $("div.torrent", res).html();
             var name = path.basename($('.download-torrent a',res)[0].href);
-            obj.torrent = 'http://www.cpasbien.pe/download-torrent/'+name;
+            obj.torrent = 'http://www.cpasbien.pe/_torrents/'+name;
             $('#fbxMsg').empty().remove();
             $('#preloadTorrent').remove();
             $('.mejs-overlay-button').hide();
