@@ -93,7 +93,7 @@ t411.init = function(gui,ht5,notif) {
         $.get(link, function(res) {
             var table = $("article", res).html()
             table += $(".accordion",res).html();
-            obj.torrent = 'http://www.t411.me'+$('a.btn',res)[1].href.replace('file://','');
+            obj.torrent = 'http://www.t411.me/torrents'+$('a.btn',res)[1].href.replace(/(.*?)\/torrents/,'');
             $('#fbxMsg').empty().remove();
             $('#preloadTorrent').remove();
             $('.mejs-overlay-button').hide();
