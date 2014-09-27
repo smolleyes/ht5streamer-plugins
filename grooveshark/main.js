@@ -27,7 +27,7 @@ gshark.init = function(gui,ht5) {
 		$('#pagination').hide();
 		$('#search').hide();
 		$('#loading').show();
-		$('#items_container').empty().css({"border": "1px solid black","position": "relative","left": "5px","top": "60px"}).hide();
+		$('#items_container').empty().hide();
 		gshark.page = gui.Window.open('http://html5.grooveshark.com/#!/popular', {
 				  "position":"center",
 				  "width": 640,
@@ -423,7 +423,7 @@ gshark.wait_songs = function() {
 		if (parseInt(count) === 0) {
 			setTimeout(function(){gshark.wait_songs()},1000);
 		} else {
-			$('#search').css({"position":"fixed","z-index": "500","top": "74px","width": "46%","background": "white","overflow": "auto","height":"25px"}).show();
+			$('#search').show();
 			$('#loading').hide();
 			$('#search').show();
 			$('#items_container').show();
