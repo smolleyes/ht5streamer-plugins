@@ -89,7 +89,7 @@ kick.init = function(gui,ht5) {
         e.preventDefault();
         console.log('download torrent clicked')
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-        kick.gui.downloadFile(obj.torrent,obj.title,obj.id,true)
+        kick.gui.getAuthTorrent(obj.torrent,false,false)
     });
      
     $(ht5.document).off('click','.download_torrentFile_fbx');
@@ -97,7 +97,7 @@ kick.init = function(gui,ht5) {
         e.preventDefault();
         console.log('download torrent clicked')
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-        kick.gui.addFreeboxDownload(obj.torrent);
+        kick.gui.getAuthTorrent(obj.torrent,false,true)
     });
 }
 
