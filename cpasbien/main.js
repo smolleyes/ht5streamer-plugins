@@ -139,7 +139,7 @@ cpb.search = function (query, options,gui) {
     if(options.searchType === "search") {
       url='http://www.cpasbien.me/recherche/'+query+'/page-'+page+',trie-'+options.orderBy+'-d';
       $.get(url,function(res){
-        var list=$('a.lien-rechercher',res);
+        var list=$('.listing-torrent > table > tbody > tr',res);
         if(list.length === 0 ) {
             $('#loading').hide();
             $("#search_results p").empty().append(_("No results found..."));
@@ -158,7 +158,7 @@ cpb.search = function (query, options,gui) {
     } else {
       url='http://www.cpasbien.me/view_cat.php?categorie='+options.category+'&page='+page+'';
       $.get(url,function(res){
-        var list=$('.torrent-aff a',res);
+        var list=$('.listing-torrent > table > tbody > tr',res);
         if(list.length === 0 ) {
             $('#loading').hide();
             $("#search_results p").empty().append(_("No results found..."));
@@ -178,8 +178,11 @@ function analyseResults(videos,list) {
   videos.items = [];
   $.each(list,function(index,item) {
       var infos = {};
-      infos.link = $(this).attr('href');
-      infos.title = $(this).text();
+      infos.link = $(this).find('a')[0].href;
+      infos.title = $(this).find('a')[0].innerHTML;
+      infos.size = $(this).find('td')[1].innerHTML;
+      infos.seeders = $(this).find('td')[2].innerHTML;
+      infos.leechers = $(this).find('td')[3].innerHTML;
       storeVideosInfos(videos,infos,index);
   });
 }
@@ -278,6 +281,10 @@ function print_videos(videos) {
 								</div> \
 					<div style="margin: 0 0 0 105px;padding-top:10px;"> \
 									<a href="#" class="preload_cpb_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \
+									<div> \
+							<span><b>Taille:</b> '+video.size+' </span> \
+							<span style="margin-left:50px;"><b>Sources:</b> '+video.seeders+' </span> \
+						  </div>  \
 									<div id="torrent_'+video.id+'"> \
 										<a class="open_in_browser" title="'+("Open in %s",cpb.engine_name)+'" href="'+video.link+'"><img style="margin-top:8px;" src="images/export.png" /></a> \
 									</div> \
