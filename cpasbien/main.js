@@ -269,19 +269,22 @@ function print_videos(videos) {
     // load videos in the playlist
 	$('#items_container').empty().append('<ul id="cpb_cont" class="list" style="margin:0;"></ul>').show();
 	$.each(videos[0].items,function(index,video) {
-		video.id = ((Math.random() * 1e6) | 0);
-		var html = '<li class="list-row" style="margin:0;padding:0;"> \
-            <div class="mvthumb"> \
-						<img src="images/cpb.png" style="float:left;width:100px;height:100px;" /> \
-						</div> \
-            <div style="margin: 0 0 0 105px;padding-top:10px;"> \
-							<a href="#" class="preload_cpb_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \
-							<div id="torrent_'+video.id+'"> \
-								<a class="open_in_browser" title="'+("Open in %s",cpb.engine_name)+'" href="'+video.link+'"><img style="margin-top:8px;" src="images/export.png" /></a> \
-							</div> \
-						</div> \
-					</li>';
-		$("#cpb_cont").append(html);
+		$.get(video.link,function(res) {
+			var img = $(".affiche img",res).attr('src');
+			video.id = ((Math.random() * 1e6) | 0);
+			var html = '<li class="list-row" style="margin:0;padding:0;"> \
+					<div class="mvthumb"> \
+								<img src="'+img+'" style="float:left;width:100px;height:100px;" /> \
+								</div> \
+					<div style="margin: 0 0 0 105px;padding-top:10px;"> \
+									<a href="#" class="preload_cpb_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \
+									<div id="torrent_'+video.id+'"> \
+										<a class="open_in_browser" title="'+("Open in %s",cpb.engine_name)+'" href="'+video.link+'"><img style="margin-top:8px;" src="images/export.png" /></a> \
+									</div> \
+								</div> \
+							</li>';
+				$("#cpb_cont").append(html);
+			});
 	});
 }
 
