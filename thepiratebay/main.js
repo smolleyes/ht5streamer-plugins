@@ -82,14 +82,14 @@ tpb.init = function(gui,ht5) {
     $(ht5.document).on('click','.download_pirateTorrentFile',function(e){
         e.preventDefault();
         console.log('download torrent clicked')
-        gui.Shell.openExternal($(this).attr("href"));
+        tpb.gui.getAuthTorrent($(this).attr("href"),false,false);
     });
     
     $(ht5.document).off('click','.download_pirateTorrentFile_fbx');
     $(ht5.document).on('click','.download_pirateTorrentFile_fbx',function(e){
         e.preventDefault();
         console.log('download torrent clicked')
-        tpb.gui.addFreeboxDownload($(this).attr("href"));
+        tpb.gui.getAuthTorrent($(this).attr("href"),false,true);
     });
 }
 
@@ -235,7 +235,7 @@ function print_videos(videos) {
   }
   console.log(tpb.gui.current_page,totalItems,totalPages)
   if (tpb.gui.current_page === 1) {
-		tpb.gui.init_pagination(totalItems,30,true,true,totalPages);
+		tpb.gui.init_pagination(totalItems,30,false,true,totalPages);
 		$("#pagination").show();
   }
     

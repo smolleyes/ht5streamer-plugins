@@ -326,14 +326,14 @@ function print_videos(videos) {
   }
   if (t411.gui.current_page === 1) {
       if (t411.searchType === 'search') {
-        t411.gui.init_pagination(totalItems,50,true,true,totalPages);
+        t411.gui.init_pagination(totalItems,50,false,true,totalPages);
       } else {
         t411.gui.init_pagination(100,100,true,true,1);
       }
       $("#pagination").show();
   } else {
 	if (t411.searchType !== 'search') {
-		t411.gui.init_pagination(0,50,true,true,0);
+		t411.gui.init_pagination(0,50,false,true,0);
 	} else {
 		t411.gui.init_pagination(totalItems,50,true,true,totalPages);
 	}	

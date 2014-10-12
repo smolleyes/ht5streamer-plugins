@@ -264,14 +264,14 @@ function print_videos(videos) {
   }
   if (kick.gui.current_page === 1) {
       if (searchType === 'search') {
-        kick.gui.init_pagination(totalItems,25,true,true,totalPages);
+        kick.gui.init_pagination(totalItems,25,false,true,totalPages);
       } else {
         kick.gui.init_pagination(0,25,true,true,0);
       }
       $("#pagination").show();
   } else {
 	if (searchType !== 'search') {
-		kick.gui.init_pagination(0,25,true,true,0);
+		kick.gui.init_pagination(0,25,false,true,0);
 	} else {
 		kick.gui.init_pagination(totalItems,25,true,true,totalPages);
 	}	

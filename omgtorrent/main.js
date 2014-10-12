@@ -81,7 +81,7 @@ $(ht5.document).on('click','.download_omgTorrentFile',function(e){
     e.preventDefault();
     console.log('download torrent clicked')
     var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-    omgTorrent.gui.downloadFile(obj.torrent,obj.title,obj.id,true)
+    omgTorrent.gui.getAuthTorrent(obj.torrent,false,false);
 });
 
 $(ht5.document).off('click','.download_omgTorrentFile_fbx');
@@ -89,7 +89,7 @@ $(ht5.document).on('click','.download_omgTorrentFile_fbx',function(e){
     e.preventDefault();
     console.log('download torrent clicked')
     var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-    omgTorrent.gui.addFreeboxDownload(obj.torrent);
+    omgTorrent.gui.getAuthTorrent(obj.torrent,false,true);
 });
 
 }
@@ -262,7 +262,7 @@ function print_videos(videos) {
 }
 if (omgTorrent.gui.current_page === 1) {
   if (searchType === 'search') {
-    omgTorrent.gui.init_pagination(totalItems,30,true,true,totalPages);
+    omgTorrent.gui.init_pagination(totalItems,30,false,true,totalPages);
 } else {
     omgTorrent.gui.init_pagination(0,30,true,true,0);
 }
@@ -280,12 +280,18 @@ $("#pagination").show();
             video.id = ((Math.random() * 1e6) | 0);
             try {
                 var img = $(".film_img",res).attr('src');
+                var css = 'float:left;height:125px;width:100px;margin-top:5px;'
             } catch(err) {
                 var img = "images/omgtorrent.png";
+                var css = 'float:left;height:45px;width:100px;margin-top:20px;'
+            }
+            if(img == undefined) {
+              var img = "images/omgtorrent.png";
+              var css = 'float:left;height:45px;width:100px;margin-top:20px;'
             }
             var html = '<li class="list-row" style="margin:0;padding:0;"> \
             <div class="mvthumb"> \
-            <img src="'+img+'" style="float:left;height:125px;width:100px;margin-top:5px;" /> \
+            <img src="'+img+'" style="'+css+'" /> \
             </div> \
             <div style="margin: 0 0 0 105px;padding-top:10px;"> \
             <a href="#" class="preload_omg_torrent" data="'+encodeURIComponent(JSON.stringify(video))+'" style="font-size:16px;font-weight:bold;">'+video.title+'</a> \

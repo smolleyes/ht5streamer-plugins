@@ -77,7 +77,7 @@ cpb.init = function(gui,ht5) {
         e.preventDefault();
         console.log('download torrent clicked')
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-        cpb.gui.downloadFile(obj.torrent,obj.title,obj.id,true)
+        cpb.gui.getAuthTorrent(obj.torrent,false,false);
     });
      
     $(ht5.document).off('click','.download_torrentFile_fbx');
@@ -85,7 +85,7 @@ cpb.init = function(gui,ht5) {
         e.preventDefault();
         console.log('download torrent clicked')
         var obj = JSON.parse(decodeURIComponent($(this).attr("data")));
-        cpb.gui.addFreeboxDownload(obj.torrent);
+        cpb.gui.getAuthTorrent(obj.torrent,false,true);
     });
 }
 
@@ -256,14 +256,14 @@ function print_videos(videos) {
   }
   if (cpb.gui.current_page === 1) {
       if (searchType === 'search') {
-        cpb.gui.init_pagination(totalItems,30,true,true,totalPages);
+        cpb.gui.init_pagination(totalItems,30,false,true,totalPages);
       } else {
         cpb.gui.init_pagination(0,30,true,true,0);
       }
       $("#pagination").show();
   } else {
 	if (searchType !== 'search') {
-		cpb.gui.init_pagination(0,30,true,true,0);
+		cpb.gui.init_pagination(0,30,false,true,0);
 	} else {
 		cpb.gui.init_pagination(totalItems,30,true,true,totalPages);
 	}	

@@ -792,7 +792,7 @@ megaSearch.search = function(query,options) {
               megaSearch.currPageStart = 0;
               megaSearch.totalResults = parseInt(params[params.length - 1].replace('start=','')) + 30;
               if (megaSearch.totalPages > 0){
-                megaSearch.gui.init_pagination(megaSearch.totalResults,30,true,true,megaSearch.totalPages);
+                megaSearch.gui.init_pagination(megaSearch.totalResults,30,false,true,megaSearch.totalPages);
                 $("#pagination").show();
               }
               megaSearch.loadSearchItems(listMain);
@@ -807,14 +807,14 @@ megaSearch.search = function(query,options) {
                  return;
               }
               megaSearch.totalResults = listMain.length;
-              megaSearch.gui.init_pagination(megaSearch.totalResults,30,true,true,megaSearch.totalPages);
+              megaSearch.gui.init_pagination(megaSearch.totalResults,30,false,true,megaSearch.totalPages);
               $("#pagination").show();
               pageParams = '';
               megaSearch.loadSearchItems(listMain);
             }
           } else {
             if (megaSearch.totalPages > 0){
-              megaSearch.gui.init_pagination(megaSearch.totalResults,30,true,true,megaSearch.totalPages);
+              megaSearch.gui.init_pagination(megaSearch.totalResults,30,false,true,megaSearch.totalPages);
               $("#pagination").show();
             }
             megaSearch.loadSearchItems(listMain);
