@@ -60,6 +60,9 @@ songza.init = function(gui,ht5) {
 		media.link = song.listen_url;
 		media.type='object.item.audioItem.musicTrack';
 		song.title = song.song.artist.name +' - '+ song.song.title;
+		$('.mejs-overlay-button').hide();
+		$('#fbxMsg').empty().remove();
+		$('.mejs-container').append('<div id="fbxMsg"><div><img src="'+song.cover_url+' /><span>'+song.title+'</span>"</div></div>');
 		songza.gui.startPlay(media);
 		$('#songza_item_'+song.song.id).closest('.youtube_item').toggleClass('highlight','true');
 		var p = $('#songza_item_'+song.song.id).parent().parent().position().top;
@@ -384,6 +387,9 @@ songza.load_next = function(id) {
 		media.type='object.item.audioItem.musicTrack';
 		songza.gui.startPlay(media);
 		$('#songza_item_'+res.song.id).closest('.youtube_item').toggleClass('highlight','true');
+		$('.mejs-overlay-button').hide();
+		$('#fbxMsg').empty().remove();
+		$('.mejs-container').append('<div id="fbxMsg"><div style="top: 50%;position: relative;"><img style="margin-left: 50%;left: -100px;position: relative;top: 50%;margin-top: -100px;" src="'+res.song.cover_url+'" /><h3 style="font-weight:bold;text-align: center;">'+media.title+'</h3></div></div>');
 		var p = $('.highlight').position().top;
     $('#left-component').scrollTop(p+13);
 	});
