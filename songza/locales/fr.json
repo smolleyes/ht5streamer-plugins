@@ -24,5 +24,6 @@
 	"Trending": "Tendances",
 	"All time": "Tout temps",
 	"Search": "Recherche",
-	"%s results found for your search %s": "%s résultats trouvés pour votre recherche %s"
+	"%s results found for your search %s": "%s résultats trouvés pour votre recherche %s",
+	"No results found for your query %" : "Aucun résultat trouvé pour votre recherche %s"
 }

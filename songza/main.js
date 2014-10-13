@@ -130,8 +130,8 @@ songza.search = function (query, options, gui){
 		}
 		var req;
 		if (songza.searchType === 'search') {
-			$.get('http://anonymouse.org/cgi-bin/anon-www.cgi/http://songza.com/search/?q='+query,function(res) {
-				songza.analyse_search(res,query);
+			$.get('http://anonymouse.org/cgi-bin/anon-www.cgi/http://songza.com/api/1/search/artist?query='+query,function(res) {
+				songza.analyse_search_artists(res,query);
 			});
 			return;
 		}
@@ -175,6 +175,33 @@ songza.search = function (query, options, gui){
 	} catch(err) {
 		console.log(err);
 	}
+}
+
+songza.analyse_search_artists = function(datas,query) {
+	if(datas.length === 0 ) {
+		$('#loading').hide();
+		$("#search_results p").empty().append(_("No results found for your query %",query));
+		$("#search").show();
+		$('#items_container').show();
+	}
+	var stations = {}
+	stations.station_ids = [];
+	$.each(datas,function(index,s) {
+		var link = encodeURIComponent(songza.gui.Base64.toBase64('http://songza.com/artist/'+s.id+'/'));
+		$.get('http://onlineproxyfree.com/index.php?q='+link+'/&hl=2ed',function(res){
+			var list = $("li.playable", res);
+			$.each(list,function(index2,s) {
+				var id = $(this).attr('data-sz-station-id');
+				stations.station_ids.push(id);
+				if (index2+1 === list.length) {
+					if (index+1 === datas.length) {
+						$("#search_results p").empty().append(_('%s results found for your search %s',stations.station_ids.length,query));
+						songza.load_genre_stations(stations);
+					}
+				}
+			});
+		});
+	});
 }
 
 songza.analyse_search = function(datas,query) {
